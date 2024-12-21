@@ -2,7 +2,7 @@
     const iframe = document.getElementById('onyx-iframe');
   
     // For now, we're using a static URL. In the future, this could be made configurable.
-    const defaultUrl = 'http://localhost:3000/chat';
+    const defaultUrl = 'http://localhost:3000/nrf';
   
     // Set the iframe src
     iframe.src = defaultUrl;

@@ -1,12 +1,49 @@
 (function() {
   const iframe = document.getElementById('onyx-panel-iframe');
 
-  // For now, we're using a static URL. In the future, this could be made configurable.
-  const defaultUrl = 'http://localhost:3000/chat';
+  function setIframeSrc(url, pageUrl) {
+    console.log('Setting iframe src to:', url);
+    iframe.src = url;
+    sendWebsiteToIframe(pageUrl);
+  }
 
-  // Set the iframe src
-  iframe.src = defaultUrl;
+  function sendWebsiteToIframe(pageUrl) {
+    if (iframe.contentWindow) {
+      iframe.contentWindow.postMessage(
+        {
+          type: "PAGE_URL",
+          url: pageUrl,
+        },
+        "*"
+      );
+      console.log('Sent PAGE_URL message to iframe:', pageUrl);
+    } else {
+      console.error('iframe.contentWindow not available');
+    }
+  }
 
-  // In the future, you might want to add functionality here to dynamically update the iframe src
-  // based on user settings stored in chrome.storage.sync
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log('Panel received message:', request);
+    if (request.action === "openOnyxWithInput") {
+      setIframeSrc(request.url, request.pageUrl);
+    } else if (request.action === "updatePageUrl") {
+      sendWebsiteToIframe(request.pageUrl);
+    }
+  });
+
+  console.log('Panel loaded');
+  chrome.runtime.sendMessage({action: "getCurrentOnyxDomain"}, function(response) {
+    if (response && response.onyxDomain) {
+      console.log('Onyx domain:', response.onyxDomain);
+      setIframeSrc(response.onyxDomain + '/chat', '');
+    } else {
+      console.log('No Onyx domain found');
+      console.error('Failed to get Onyx domain');
+      setIframeSrc('http://localhost:3000/chat', '');
+    }
+  });
+
+  iframe.onerror = function() {
+    console.error('Failed to load iframe');
+  };
 })();
