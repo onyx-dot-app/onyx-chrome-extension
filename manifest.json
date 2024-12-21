@@ -1,0 +1,37 @@
+{
+  "name": "Onyx Extension",
+  "version": "0.1",
+  "manifest_version": 3,
+  "description": "Minimal Onyx (Danswer) extension to embed or open the Onyx homepage and panel.",
+  "permissions": ["storage", "sidePanel", "tabs", "cookies"],
+  "host_permissions": ["http://localhost:3000/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src http://localhost:3000"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_ui": {
+    "page": "src/pages/options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_title": "Onyx Home",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/service_worker.js"
+  },
+  "side_panel": {
+    "default_path": "src/panel/panel.html"
+  },
+  "chrome_url_overrides": {
+    "newtab": "src/pages/onyx_home.html"
+  }
+}

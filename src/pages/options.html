@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Onyx Extension Options</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="text"] {
+      width: 300px;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Onyx Extension Settings</h1>
+  <label for="onyxDomain">Onyx Domain:</label>
+  <input type="text" id="onyxDomain" placeholder="http://localhost:3000/nrf" />
+  <button id="save">Save</button>
+  <p id="status"></p>
+  <script src="options.js"></script>
+</body>
+</html>
