@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Onyx New Tab</title>
+  <link rel="stylesheet" href="../styles/shared.css">
   <style>
     body, html {
       margin: 0;
@@ -13,7 +15,7 @@
     }
     @media (prefers-color-scheme: dark) {
       html, body {
-        background-color: #3f4043;
+        background-color: #000;
       }
     }
     @media (prefers-color-scheme: light) {
@@ -49,54 +51,6 @@
       left: 0;
       visibility: hidden; /* Initially hidden, will be shown when loaded */
     }
-    
-    /* Modal styling */
-    #error-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      font-family: "Helvetica Neue", Arial, sans-serif;
-    }
-    .modal-content {
-      background-color: #1a1a1a;
-      color: #f2f2f2;
-      padding: 2rem;
-      border-radius: 8px;
-      max-width: 80%;
-      text-align: center;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    }
-    .modal-content h2 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-      font-weight: 400;
-    }
-    .modal-content p {
-      margin: 0.75rem 0;
-      line-height: 1.4;
-    }
-    .modal-content a {
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: bold;
-      padding: 0.4rem 0.75rem;
-      border: 1px solid #666;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-    }
-    .modal-content a:hover {
-      background-color: #333;
-    }
-    #error-modal.visible {
-      display: flex;
-    }
   </style>
 </head>
 <body>
@@ -112,7 +66,7 @@
       <h2>Configuration Update Required</h2>
       <p>The Onyx configuration needs to be updated. Please check your settings in the extension options.</p>
       <p>Attempted to load: <span id="attempted-url"></span></p>
-      <p><a href="#" id="open-options">Open Extension Options</a></p>
+      <a href="#" id="open-options" class="button">Open Extension Options</a>
     </div>
   </div>
   <script src="onyx_home.js"></script>

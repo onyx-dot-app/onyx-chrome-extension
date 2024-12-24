@@ -64,30 +64,28 @@
 
   function showErrorModal() {
     console.error("Showing error modal");
+    errorModal.style.display = "flex";
+    // Trigger reflow to ensure the display change is applied before adding the visible class
+    errorModal.offsetHeight;
     errorModal.classList.add("visible");
     background.style.opacity = "1";
     content.style.opacity = "0";
-    console.log("Error modal display style:", errorModal.style.display);
-    console.log("Error modal classList:", errorModal.classList);
-    console.log("Error modal offsetHeight:", errorModal.offsetHeight);
-    console.log("Error modal offsetWidth:", errorModal.offsetWidth);
   }
 
   function hideErrorModal() {
     console.log("Hiding error modal");
     errorModal.classList.remove("visible");
-    console.log(
-      "Error modal display style after hiding:",
-      errorModal.style.display
-    );
-    console.log("Error modal classList after hiding:", errorModal.classList);
+    // Wait for the fade-out transition to complete before hiding the modal
+    setTimeout(() => {
+      errorModal.style.display = "none";
+    }, 300); // This should match the transition duration in CSS
   }
 
   function checkOnyxPreference() {
     chrome.storage.local.get(
       [
         "useOnyxAsDefaultNewTab",
-        // "onyxDomain",
+        "onyxDomain",
         "useOnyxAsDefaultNewTab",
         "defaultNtpUrl",
       ],
@@ -113,9 +111,9 @@
           return;
         }
 
-        // const onyxDomain = items.onyxDomain || "http://localhost:3000";
-        // console.log("Setting iframe src to:", onyxDomain);
-        setIframeSrc("http://localhost:3000/nrf");
+        const onyxDomain = items.onyxDomain || "http://localhost:3000";
+        console.log("Setting iframe src to:", onyxDomain);
+        setIframeSrc(onyxDomain);
       }
     );
   }
