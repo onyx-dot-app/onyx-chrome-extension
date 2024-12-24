@@ -30,18 +30,6 @@ function createSidePanel() {
   document.body.appendChild(sidePanel);
 }
 
-function toggleSidePanel() {
-  if (!sidePanel) {
-    createSidePanel();
-  }
-  
-  if (sidePanel.style.right === '0px') {
-    sidePanel.style.right = '-400px';
-  } else {
-    sidePanel.style.right = '0px';
-  }
-}
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('Content script received message:', request);
   if (request.action === "openOnyxWithInput") {
