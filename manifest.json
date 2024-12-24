@@ -1,1 +1,40 @@
-
+{
+  "manifest_version": 3,
+  "name": "Onyx Extension",
+  "version": "1.0",
+  "description": "Onyx Chrome Extension",
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "service_worker.js"
+  },
+  "action": {
+    "default_popup": "src/pages/onyx_home.html",
+    "default_icon": {
+      "16": "public/icon16.png",
+      "48": "public/icon48.png",
+      "128": "public/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "public/icon16.png",
+    "48": "public/icon48.png",
+    "128": "public/icon128.png"
+  },
+  "options_page": "src/pages/options.html",
+  "chrome_url_overrides": {
+    "newtab": "src/pages/onyx_home.html"
+  },
+  "commands": {
+    "send-to-onyx": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+P",
+        "mac": "Command+Shift+P"
+      },
+      "description": "Send selected text to Onyx"
+    }
+  },
+  "side_panel": {
+    "default_path": "src/panel/panel.html"
+  }
+}

@@ -11,6 +11,16 @@
       height: 100vh;
       overflow: hidden;
     }
+    @media (prefers-color-scheme: dark) {
+      html, body {
+        background-color: #3f4043;
+      }
+    }
+    @media (prefers-color-scheme: light) {
+      html, body {
+        background-color: #f6f6f6;
+      }
+    }
     #background {
       position: fixed;
       top: 0;
@@ -83,6 +93,9 @@
     }
     .modal-content a:hover {
       background-color: #333;
+    }
+    #error-modal.visible {
+      display: flex;
     }
   </style>
 </head>

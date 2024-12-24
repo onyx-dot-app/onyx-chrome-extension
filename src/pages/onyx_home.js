@@ -11,20 +11,30 @@
     "https://images.unsplash.com/photo-1692520883599-d543cfe6d43d?q=80&w=2666&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
   let iframeLoadTimeout;
+  let iframeLoaded = false;
+  !iframeLoaded;
 
   function setIframeSrc(url) {
     console.log("Setting iframe src to:", url);
     iframe.src = url;
     attemptedUrlSpan.textContent = url;
     startIframeLoadTimeout();
+    iframeLoaded = false;
   }
 
   function startIframeLoadTimeout() {
     clearTimeout(iframeLoadTimeout);
     iframeLoadTimeout = setTimeout(() => {
       console.error("Timeout: No message received from Onyx application");
-      showErrorModal();
-    }, 10000); // 10 seconds timeout
+      if (!iframeLoaded) {
+        console.warn("Iframe not loaded, showing error modal");
+        showErrorModal();
+      } else {
+        console.warn(
+          "Iframe loaded but no message received from Onyx application"
+        );
+      }
+    }, 5000); // Increased to 5 seconds (5000 milliseconds)
   }
 
   function setTheme(theme, customBackgroundImage) {
@@ -54,29 +64,58 @@
 
   function showErrorModal() {
     console.error("Showing error modal");
-    errorModal.style.display = "flex";
+    errorModal.classList.add("visible");
     background.style.opacity = "1";
     content.style.opacity = "0";
+    console.log("Error modal display style:", errorModal.style.display);
+    console.log("Error modal classList:", errorModal.classList);
+    console.log("Error modal offsetHeight:", errorModal.offsetHeight);
+    console.log("Error modal offsetWidth:", errorModal.offsetWidth);
   }
 
   function hideErrorModal() {
     console.log("Hiding error modal");
-    errorModal.style.display = "none";
+    errorModal.classList.remove("visible");
+    console.log(
+      "Error modal display style after hiding:",
+      errorModal.style.display
+    );
+    console.log("Error modal classList after hiding:", errorModal.classList);
   }
 
   function checkOnyxPreference() {
     chrome.storage.local.get(
-      ["useOnyxAsDefaultNewTab", "onyxDomain"],
-      function (result) {
-        console.log("useOnyxAsDefaultNewTab:", result.useOnyxAsDefaultNewTab);
-        if (result.useOnyxAsDefaultNewTab) {
-          const onyxDomain = result.onyxDomain || "http://localhost:3000";
-          console.log("Setting iframe src to:", onyxDomain);
-          setIframeSrc(onyxDomain);
-        } else {
-          console.log("Redirecting to default new tab");
-          window.location.href = "chrome://newtab/";
+      [
+        "useOnyxAsDefaultNewTab",
+        // "onyxDomain",
+        "useOnyxAsDefaultNewTab",
+        "defaultNtpUrl",
+      ],
+      (items) => {
+        let useOnyxAsDefaultNewTab = items.useOnyxAsDefaultNewTab;
+        console.log(
+          "useOnyxAsDefaultNewTab (previously useOnyxAsDefaultNewTab):",
+          useOnyxAsDefaultNewTab
+        );
+
+        if (useOnyxAsDefaultNewTab === undefined) {
+          useOnyxAsDefaultNewTab = !!(
+            localStorage.getItem("useOnyxAsDefaultNewTab") === "1"
+          );
+          chrome.storage.local.set({ useOnyxAsDefaultNewTab });
         }
+
+        if (!useOnyxAsDefaultNewTab) {
+          console.log("Redirecting to default new tab");
+          chrome.tabs.update({
+            url: items.defaultNtpUrl || "chrome://new-tab-page",
+          });
+          return;
+        }
+
+        // const onyxDomain = items.onyxDomain || "http://localhost:3000";
+        // console.log("Setting iframe src to:", onyxDomain);
+        setIframeSrc("http://localhost:3000/nrf");
       }
     );
   }
@@ -131,6 +170,7 @@
       clearTimeout(iframeLoadTimeout);
       hideErrorModal();
       fadeInContent();
+      iframeLoaded = true;
     }
   });
 
@@ -144,11 +184,14 @@
 
   iframe.onload = function () {
     console.log("Iframe onload event fired");
-    // We'll wait for the ONYX_APP_LOADED message instead of checking content here
+    clearTimeout(iframeLoadTimeout);
+    // Start a new timeout to wait for the ONYX_APP_LOADED message
+    startIframeLoadTimeout();
+    console.log("Started new iframe load timeout"); // Add this line for debugging
   };
 
-  iframe.onerror = function () {
-    console.error("Failed to load iframe");
+  iframe.onerror = function (error) {
+    console.error("Failed to load iframe", error);
     showErrorModal();
   };
 

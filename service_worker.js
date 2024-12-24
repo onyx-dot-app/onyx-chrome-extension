@@ -1,38 +1,31 @@
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.get({ useOnyxAsDefaultNewTab: false }, (result) => {
-    updateNewTabBehavior(result.useOnyxAsDefaultNewTab);
-  });
-});
+// chrome.runtime.onInstalled.addListener(() => {
+//   chrome.storage.local.get({ useOnyxAsDefaultNewTab: false }, (result) => {
+//     updateNewTabBehavior(result.useOnyxAsDefaultNewTab);
+//   });
+// });
 
-chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === "local" && changes.useOnyxAsDefaultNewTab) {
-    updateNewTabBehavior(changes.useOnyxAsDefaultNewTab.newValue);
-  }
-});
+// chrome.storage.onChanged.addListener((changes, namespace) => {
+//   if (namespace === "local" && changes.useOnyxAsDefaultNewTab) {
+//     updateNewTabBehavior(changes.useOnyxAsDefaultNewTab.newValue);
+//   }
+// });
 
-function updateNewTabBehavior(useOnyxAsDefault) {
-  if (useOnyxAsDefault) {
-    chrome.tabs.onCreated.addListener(handleNewTab);
-  } else {
-    chrome.tabs.onCreated.removeListener(handleNewTab);
-  }
-}
-
-function handleNewTab(tab) {
-  if (tab.pendingUrl === "chrome://newtab/" || tab.url === "chrome://newtab/") {
-    chrome.storage.local.get(
-      { onyxDomain: "http://localhost:3000" },
-      (result) => {
-        chrome.tabs.update(tab.id, { url: `${result.onyxDomain}/nrf` });
-      }
-    );
-  }
-}
+// function updateNewTabBehavior(useOnyxAsDefault) {
+//   if (useOnyxAsDefault) {
+//     chrome.tabs.onCreated.addListener(handleNewTab);
+//   } else {
+//     chrome.tabs.onCreated.removeListener(handleNewTab);
+//   }
+// }
 
 // Existing code for side panel, context menu, etc.
-chrome.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch((error) => console.error(error));
+if (chrome.sidePanel) {
+  chrome.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch((error) => console.error(error));
+} else {
+  console.warn("Side panel not supported");
+}
 
 chrome.action.onClicked.addListener((tab) => {
   chrome.sidePanel.open({ tabId: tab.id });
@@ -40,11 +33,15 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Onyx Extension installed");
-  chrome.contextMenus.create({
-    id: "sendToOnyx",
-    title: "Send to Onyx",
-    contexts: ["selection"],
-  });
+  if (chrome.contextMenus) {
+    chrome.contextMenus.create({
+      id: "sendToOnyx",
+      title: "Send to Onyx",
+      contexts: ["selection"],
+    });
+  } else {
+    console.warn("Context menus not supported");
+  }
 });
 
 function sendToOnyx(info, tab) {
@@ -65,11 +62,15 @@ function sendToOnyx(info, tab) {
   );
 }
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "sendToOnyx") {
-    sendToOnyx(info, tab);
-  }
-});
+if (chrome.contextMenus) {
+  chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === "sendToOnyx") {
+      sendToOnyx(info, tab);
+    }
+  });
+} else {
+  console.warn("Context menus not supported");
+}
 
 chrome.commands.onCommand.addListener((command) => {
   if (command === "send-to-onyx") {
