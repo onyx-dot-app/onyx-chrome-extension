@@ -1,33 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Onyx Extension Options</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onyx Extension Settings</title>
+  <link rel="stylesheet" href="../styles/shared.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-    }
-    input[type="text"] {
-      width: 300px;
-      padding: 5px;
-      margin-bottom: 10px;
-    }
-    button {
-      padding: 5px 10px;
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
   </style>
 </head>
 <body>
-  <h1>Onyx Extension Settings</h1>
-  <label for="onyxDomain">Onyx Domain:</label>
-  <input type="text" id="onyxDomain" placeholder="http://localhost:3000/nrf" />
-  <button id="save">Save</button>
-  <p id="status"></p>
-  <script src="options.js"></script>
+  <div class="container">
+    <div class="card">
+      <h1>Onyx Extension Settings</h1>
+      <div class="option-group">
+        <label for="onyxDomain">Root Domain</label>
+        <input type="text" id="onyxDomain" placeholder="https://cloud.onyx.app">
+      </div>
+      <div class="option-group">
+        <label for="useOnyxAsDefault" class="toggle-label">
+          Use Onyx as default new tab
+          <label class="toggle-switch">
+            <input type="checkbox" id="useOnyxAsDefault">
+            <span class="slider"></span>
+          </label>
+        </label>
+      </div>
+      <button id="save" class="button primary">Save</button>
+      <div id="statusContainer" class="status-container" style="display: none;">
+        <p id="status" class="status-message"></p>
+        <button id="newTab" class="button secondary">Open New Tab to Test</button>
+      </div>
+      <p class="shortcut-info">Tip: Use <kbd><span id="shortcut-key"></span></kbd> to quickly toggle the New Tab Override.</p>
+    </div>
+  </div>
+  <script type="module" src="options.js"></script>
 </body>
 </html>
