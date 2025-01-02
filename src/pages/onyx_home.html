@@ -49,26 +49,17 @@
       position: absolute;
       top: 0;
       left: 0;
-      visibility: hidden; /* Initially hidden, will be shown when loaded */
+      visibility: hidden;
     }
   </style>
 </head>
 <body>
   <div id="background"></div>
   <div id="content">
-    <iframe
-      id="onyx-iframe"
-      allowfullscreen>
-    </iframe>
+    <iframe id="onyx-iframe" allowfullscreen></iframe>
   </div>
-  <div id="error-modal">
-    <div class="modal-content">
-      <h2>Configuration Update Required</h2>
-      <p>The Onyx configuration needs to be updated. Please check your settings in the extension options.</p>
-      <p>Attempted to load: <span id="attempted-url"></span></p>
-      <a href="#" id="open-options" class="button">Open Extension Options</a>
-    </div>
-  </div>
-  <script src="onyx_home.js"></script>
+  <script src="../shared/error-modal.js" type="module"></script>
+  <script src="background_loader.js" type="module"></script>
+  <script src="onyx_home.js" type="module"></script>
 </body>
 </html>

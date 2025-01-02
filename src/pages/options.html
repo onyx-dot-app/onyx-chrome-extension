@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Onyx Settings</title>
+  <title>Onyx Extension Settings</title>
   <link rel="stylesheet" href="../styles/shared.css">
 </head>
 <body>
   <div class="container">
-    <h1>Onyx Settings</h1>
     <div class="card">
+      <h1>Onyx Extension Settings</h1>
       <div class="option-group">
         <label for="onyxDomain">Root Domain</label>
         <input type="text" id="onyxDomain" placeholder="https://cloud.onyx.app">
       </div>
       <div class="option-group">
-        <label for="useOnyxAsDefault">
+        <label for="useOnyxAsDefault" class="toggle-label">
           Use Onyx as default new tab
           <label class="toggle-switch">
             <input type="checkbox" id="useOnyxAsDefault">
@@ -23,9 +23,14 @@
           </label>
         </label>
       </div>
-      <button id="save">Save</button>
+
+      <button id="save" class="margin-negative button primary" style="margin-top: -10px;">Save</button>
+      <div id="statusContainer" style="display: none;">
+        <p id="status" class="status-message"></p>
+        <button id="newTab" class="button secondary">Open New Tab to Test</button>
+      </div>
     </div>
-    <p id="status"></p>
+    <p class="shortcut-info margin-negative" style="margin-top: -10px;">Tip: Use <kbd><span id="shortcut-key"></span></kbd> to quickly toggle the New Tab Override.</p>
   </div>
   <script src="options.js"></script>
 </body>

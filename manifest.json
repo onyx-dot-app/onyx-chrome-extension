@@ -3,7 +3,7 @@
   "name": "Onyx Extension",
   "version": "1.0",
   "description": "Onyx Chrome Extension",
-  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "permissions": ["sidePanel", "storage", "activeTab", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "service_worker.js"
@@ -32,6 +32,13 @@
         "mac": "Command+Shift+P"
       },
       "description": "Send selected text to Onyx"
+    },
+    "toggle-new-tab-override": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+O",
+        "mac": "Command+Shift+O"
+      },
+      "description": "Toggle Onyx New Tab Override"
     }
   },
   "side_panel": {

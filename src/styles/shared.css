@@ -152,12 +152,11 @@ button:hover, .button:hover {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.8);
   z-index: 1000;
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .modal-content {
@@ -168,6 +167,8 @@ button:hover, .button:hover {
   width: 90%;
   max-width: 400px;
   text-align: center;
+  transform: translateY(20px);
+  transition: transform 0.3s ease-in-out;
 }
 
 .modal-content p {
@@ -176,8 +177,12 @@ button:hover, .button:hover {
 }
 
 #error-modal.visible {
+  display: flex;
   opacity: 1;
-  visibility: visible;
+}
+
+#error-modal.visible .modal-content {
+  transform: translateY(0);
 }
 
 /* Responsive adjustments */

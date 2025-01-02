@@ -1,3 +1,5 @@
+import { showErrorModal, hideErrorModal } from "../shared/error-modal.js";
+
 (function () {
   const iframe = document.getElementById("onyx-panel-iframe");
   const loadingScreen = document.getElementById("loading-screen");
@@ -5,19 +7,25 @@
   let currentUrl = "";
   let iframeLoadTimeout;
 
+  // Ensure loading screen is visible initially
+  loadingScreen.style.display = "flex";
+  loadingScreen.style.opacity = "1";
+  iframe.style.opacity = "0";
+
   function setIframeSrc(url, pageUrl) {
     console.log("Setting iframe src to:", url);
     if (iframe.src !== url) {
       iframe.src = url;
     }
     currentUrl = pageUrl;
-    startIframeLoadTimeout(url);
+    startIframeLoadTimeout();
   }
 
-  function startIframeLoadTimeout(url) {
+  function startIframeLoadTimeout() {
     clearTimeout(iframeLoadTimeout);
     iframeLoadTimeout = setTimeout(() => {
       console.error("Timeout: No message received from Onyx application");
+      showErrorModal(iframe.src);
     }, 10000); // 10 seconds timeout
   }
 
@@ -50,11 +58,10 @@
     function (response) {
       if (response && response.onyxDomain) {
         console.log("Onyx domain:", response.onyxDomain);
-        setIframeSrc(response.onyxDomain + "/chat", "");
+        setIframeSrc(response.onyxDomain + "/chat?defaultSidebarOff=true", "");
       } else {
-        console.log("No Onyx domain found");
-        console.error("Failed to get Onyx domain");
-        setIframeSrc("http://localhost:3000/chat", "");
+        console.warn("Onyx domain not found, using default");
+        setIframeSrc("http://localhost:3000/chat?defaultSidebarOff=true", "");
       }
     }
   );
@@ -65,20 +72,26 @@
       console.log("Onyx application loaded successfully");
       clearTimeout(iframeLoadTimeout);
       hideErrorModal();
+
+      // Fade out loading screen and show iframe
       iframe.style.opacity = "1";
       loadingScreen.style.opacity = "0";
       setTimeout(() => {
         loadingScreen.style.display = "none";
       }, 500);
+
+      if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ type: "PANEL_READY" }, "*");
+      }
     }
   });
 
   iframe.onload = function () {
     console.log("Iframe onload event fired");
-    // We'll wait for the ONYX_APP_LOADED message instead of checking content here
   };
 
-  iframe.onerror = function () {
-    console.error("Failed to load iframe");
+  iframe.onerror = function (error) {
+    console.error("Failed to load iframe:", error);
+    showErrorModal(iframe.src);
   };
 })();
