@@ -1,118 +1,153 @@
-console.log("Service worker loaded");
+import {
+  DEFAULT_ONYX_DOMAIN,
+  CONTEXT_MENU_ID,
+  CONTEXT_MENU_TITLE,
+  STORAGE_KEYS,
+  COMMANDS,
+  ACTIONS,
+} from "./src/shared/constants.js";
 
-if (chrome.sidePanel) {
-  console.log("Side panel API is available");
-  chrome.sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
-    .then(() => console.log("Side panel behavior set successfully"))
-    .catch((error) =>
-      console.error("Error setting side panel behavior:", error)
-    );
-} else {
-  console.warn("Side panel not supported");
+const logger = {
+  log: (message, ...args) =>
+    console.log(`[Onyx Extension] ${message}`, ...args),
+  error: (message, ...args) =>
+    console.error(`[Onyx Extension] Error: ${message}`, ...args),
+  warn: (message, ...args) =>
+    console.warn(`[Onyx Extension] Warning: ${message}`, ...args),
+};
+
+logger.log("Service worker loaded");
+
+async function setupSidePanel() {
+  if (chrome.sidePanel) {
+    logger.log("Side panel API is available");
+    try {
+      await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+      logger.log("Side panel behavior set successfully");
+    } catch (error) {
+      logger.error("Error setting side panel behavior:", error);
+    }
+  } else {
+    logger.warn("Side panel not supported");
+  }
 }
 
-chrome.action.onClicked.addListener((tab) => {
-  console.log("Extension icon clicked, attempting to open side panel");
-  chrome.sidePanel
-    .open({ tabId: tab.id })
-    .then(() => console.log("Side panel opened successfully"))
-    .catch((error) => console.error("Error opening side panel:", error));
-});
-
-chrome.runtime.onInstalled.addListener(() => {
-  console.log("Onyx Extension installed or updated");
-  if (chrome.contextMenus) {
-    chrome.contextMenus.create({
-      id: "sendToOnyx",
-      title: "Send to Onyx",
-      contexts: ["selection"],
-    });
-  } else {
-    console.warn("Context menus not supported");
+async function openSidePanel(tabId) {
+  try {
+    await chrome.sidePanel.open({ tabId });
+    logger.log("Side panel opened successfully");
+  } catch (error) {
+    logger.error("Error opening side panel:", error);
   }
-});
+}
 
-function sendToOnyx(info, tab) {
-  console.log("sendToOnyx function called", { info, tab });
+async function sendToOnyx(info, tab) {
+  logger.log("sendToOnyx function called", { info, tab });
   const selectedText = encodeURIComponent(info.selectionText);
   const currentUrl = encodeURIComponent(tab.url);
-  chrome.storage.local.get(
-    { onyxDomain: "http://localhost:3000" },
-    (result) => {
-      const url = `${result.onyxDomain}/chat?input=${selectedText}&url=${currentUrl}`;
-      console.log("Attempting to open side panel with URL:", url);
-      chrome.sidePanel
-        .open({ tabId: tab.id })
-        .then(() => {
-          console.log("Side panel opened successfully, sending message");
-          chrome.runtime.sendMessage({
-            action: "openOnyxWithInput",
-            url: url,
-            pageUrl: tab.url,
-          });
-        })
-        .catch((error) => console.error("Error opening side panel:", error));
-    }
-  );
+
+  try {
+    const result = await chrome.storage.local.get({
+      [STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
+    });
+    const url = `${
+      result[STORAGE_KEYS.ONYX_DOMAIN]
+    }/chat?input=${selectedText}&url=${currentUrl}`;
+    logger.log("Attempting to open side panel with URL:", url);
+
+    await openSidePanel(tab.id);
+    chrome.runtime.sendMessage({
+      action: ACTIONS.OPEN_ONYX_WITH_INPUT,
+      url: url,
+      pageUrl: tab.url,
+    });
+  } catch (error) {
+    logger.error("Error in sendToOnyx:", error);
+  }
 }
+
+async function setupContextMenu() {
+  if (chrome.contextMenus) {
+    try {
+      await chrome.contextMenus.create({
+        id: CONTEXT_MENU_ID,
+        title: CONTEXT_MENU_TITLE,
+        contexts: ["selection"],
+      });
+      logger.log("Context menu created successfully");
+    } catch (error) {
+      logger.error("Error creating context menu:", error);
+    }
+  } else {
+    logger.warn("Context menus not supported");
+  }
+}
+
+async function toggleNewTabOverride() {
+  try {
+    const result = await chrome.storage.local.get(
+      STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB
+    );
+    const newValue = !result[STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];
+    await chrome.storage.local.set({
+      [STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]: newValue,
+    });
+    logger.log(`Onyx New Tab Override ${newValue ? "enabled" : "disabled"}`);
+
+    chrome.notifications.create({
+      type: "basic",
+      iconUrl: "icon.png",
+      title: "Onyx New Tab",
+      message: `New Tab Override ${newValue ? "enabled" : "disabled"}`,
+    });
+  } catch (error) {
+    logger.error("Error toggling new tab override:", error);
+  }
+}
+
+chrome.runtime.onInstalled.addListener(setupContextMenu);
+
+chrome.action.onClicked.addListener((tab) => {
+  logger.log("Extension icon clicked, attempting to open side panel");
+  openSidePanel(tab.id);
+});
 
 if (chrome.contextMenus) {
   chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === "sendToOnyx") {
+    if (info.menuItemId === CONTEXT_MENU_ID) {
       sendToOnyx(info, tab);
     }
   });
-} else {
-  console.warn("Context menus not supported");
 }
 
-chrome.commands.onCommand.addListener((command) => {
-  if (command === "send-to-onyx") {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
-      if (tab) {
-        chrome.tabs.sendMessage(
-          tab.id,
-          { action: "getSelectedText" },
-          (response) => {
-            if (response && response.selectedText) {
-              sendToOnyx({ selectionText: response.selectedText }, tab);
-            } else {
-              sendToOnyx({ selectionText: "" }, tab);
-            }
-          }
-        );
-      }
-    });
-  }
-});
-
-chrome.commands.onCommand.addListener((command) => {
-  if (command === "toggle-new-tab-override") {
-    chrome.storage.local.get("useOnyxAsDefaultNewTab", (result) => {
-      const newValue = !result.useOnyxAsDefaultNewTab;
-      chrome.storage.local.set({ useOnyxAsDefaultNewTab: newValue }, () => {
-        console.log(
-          `Onyx New Tab Override ${newValue ? "enabled" : "disabled"}`
-        );
-        // Optionally, show a notification to the user
-        chrome.notifications.create({
-          type: "basic",
-          iconUrl: "icon.png",
-          title: "Onyx New Tab",
-          message: `New Tab Override ${newValue ? "enabled" : "disabled"}`,
-        });
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command === COMMANDS.SEND_TO_ONYX) {
+    try {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
       });
-    });
+      if (tab) {
+        const response = await chrome.tabs.sendMessage(tab.id, {
+          action: ACTIONS.GET_SELECTED_TEXT,
+        });
+        const selectedText = response?.selectedText || "";
+        sendToOnyx({ selectionText: selectedText }, tab);
+      }
+    } catch (error) {
+      logger.error("Error handling send-to-onyx command:", error);
+    }
+  } else if (command === COMMANDS.TOGGLE_NEW_TAB_OVERRIDE) {
+    toggleNewTabOverride();
   }
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "getCurrentOnyxDomain") {
+  if (request.action === ACTIONS.GET_CURRENT_ONYX_DOMAIN) {
     chrome.storage.local.get(
-      { onyxDomain: "http://localhost:3000" },
+      { [STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
       (result) => {
-        sendResponse({ onyxDomain: result.onyxDomain });
+        sendResponse({ onyxDomain: result[STORAGE_KEYS.ONYX_DOMAIN] });
       }
     );
     return true;
@@ -120,16 +155,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  console.log("Storage changed:", changes, "in namespace:", namespace);
-  if (namespace === "local" && changes.useOnyxAsDefaultNewTab) {
-    const newValue = changes.useOnyxAsDefaultNewTab.newValue;
-    console.log("useOnyxAsDefaultNewTab changed:", newValue);
+  logger.log("Storage changed:", changes, "in namespace:", namespace);
+  if (
+    namespace === "local" &&
+    changes[STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]
+  ) {
+    const newValue = changes[STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB].newValue;
+    logger.log(
+      `${STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB} changed:`,
+      newValue
+    );
 
-    // Reopen the options page only if the new value is false
     if (newValue === false) {
       chrome.runtime.openOptionsPage(() => {
-        console.log("Attempted to reopen options page");
+        logger.log("Attempted to reopen options page");
       });
     }
   }
 });
+
+setupSidePanel();

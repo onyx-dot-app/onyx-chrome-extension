@@ -7,13 +7,14 @@ import { showErrorModal, hideErrorModal } from "../shared/error-modal.js";
   let currentUrl = "";
   let iframeLoadTimeout;
 
-  // Ensure loading screen is visible initially
-  loadingScreen.style.display = "flex";
-  loadingScreen.style.opacity = "1";
-  iframe.style.opacity = "0";
+  function initializePanel() {
+    loadingScreen.style.display = "flex";
+    loadingScreen.style.opacity = "1";
+    iframe.style.opacity = "0";
+    loadOnyxDomain();
+  }
 
   function setIframeSrc(url, pageUrl) {
-    console.log("Setting iframe src to:", url);
     if (iframe.src !== url) {
       iframe.src = url;
     }
@@ -24,9 +25,8 @@ import { showErrorModal, hideErrorModal } from "../shared/error-modal.js";
   function startIframeLoadTimeout() {
     clearTimeout(iframeLoadTimeout);
     iframeLoadTimeout = setTimeout(() => {
-      console.error("Timeout: No message received from Onyx application");
       showErrorModal(iframe.src);
-    }, 10000); // 10 seconds timeout
+    }, 10000);
   }
 
   function sendWebsiteToIframe(pageUrl) {
@@ -38,13 +38,47 @@ import { showErrorModal, hideErrorModal } from "../shared/error-modal.js";
         },
         "*"
       );
-      console.log("Sent PAGE_URL message to iframe:", pageUrl);
       currentUrl = pageUrl;
     }
   }
 
+  function handleMessage(event) {
+    if (event.data.type === "ONYX_APP_LOADED") {
+      clearTimeout(iframeLoadTimeout);
+      hideErrorModal();
+      showIframe();
+      if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ type: "PANEL_READY" }, "*");
+      }
+    }
+  }
+
+  function showIframe() {
+    iframe.style.opacity = "1";
+    loadingScreen.style.opacity = "0";
+    setTimeout(() => {
+      loadingScreen.style.display = "none";
+    }, 500);
+  }
+
+  function loadOnyxDomain() {
+    chrome.runtime.sendMessage(
+      { action: "getCurrentOnyxDomain" },
+      function (response) {
+        if (response && response.onyxDomain) {
+          setIframeSrc(
+            response.onyxDomain + "/chat?defaultSidebarOff=true",
+            ""
+          );
+        } else {
+          console.warn("Onyx domain not found, using default");
+          setIframeSrc("http://localhost:3000/chat?defaultSidebarOff=true", "");
+        }
+      }
+    );
+  }
+
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log("Panel received message:", request);
     if (request.action === "openOnyxWithInput") {
       setIframeSrc(request.url, request.pageUrl);
     } else if (request.action === "updatePageUrl") {
@@ -52,46 +86,13 @@ import { showErrorModal, hideErrorModal } from "../shared/error-modal.js";
     }
   });
 
-  console.log("Panel loaded");
-  chrome.runtime.sendMessage(
-    { action: "getCurrentOnyxDomain" },
-    function (response) {
-      if (response && response.onyxDomain) {
-        console.log("Onyx domain:", response.onyxDomain);
-        setIframeSrc(response.onyxDomain + "/chat?defaultSidebarOff=true", "");
-      } else {
-        console.warn("Onyx domain not found, using default");
-        setIframeSrc("http://localhost:3000/chat?defaultSidebarOff=true", "");
-      }
-    }
-  );
+  window.addEventListener("message", handleMessage);
 
-  window.addEventListener("message", function (event) {
-    console.log("Received message in panel.js:", event.data);
-    if (event.data.type === "ONYX_APP_LOADED") {
-      console.log("Onyx application loaded successfully");
-      clearTimeout(iframeLoadTimeout);
-      hideErrorModal();
-
-      // Fade out loading screen and show iframe
-      iframe.style.opacity = "1";
-      loadingScreen.style.opacity = "0";
-      setTimeout(() => {
-        loadingScreen.style.display = "none";
-      }, 500);
-
-      if (iframe.contentWindow) {
-        iframe.contentWindow.postMessage({ type: "PANEL_READY" }, "*");
-      }
-    }
-  });
-
-  iframe.onload = function () {
-    console.log("Iframe onload event fired");
-  };
+  iframe.onload = startIframeLoadTimeout;
 
   iframe.onerror = function (error) {
-    console.error("Failed to load iframe:", error);
     showErrorModal(iframe.src);
   };
+
+  initializePanel();
 })();

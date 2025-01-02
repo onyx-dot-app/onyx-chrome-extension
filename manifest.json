@@ -6,7 +6,8 @@
   "permissions": ["sidePanel", "storage", "activeTab", "scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "service_worker.js"
+    "service_worker": "service_worker.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "src/pages/onyx_home.html",

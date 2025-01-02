@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Onyx Extension Settings</title>
   <link rel="stylesheet" href="../styles/shared.css">
+  <style>
+    body {
+      background-color: var(--background-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -23,14 +32,13 @@
           </label>
         </label>
       </div>
-
-      <button id="save" class="margin-negative button primary" style="margin-top: -10px;">Save</button>
-      <div id="statusContainer" style="display: none;">
+      <button id="save" class="button primary">Save</button>
+      <div id="statusContainer" class="status-container" style="display: none;">
         <p id="status" class="status-message"></p>
         <button id="newTab" class="button secondary">Open New Tab to Test</button>
       </div>
+      <p class="shortcut-info">Tip: Use <kbd><span id="shortcut-key"></span></kbd> to quickly toggle the New Tab Override.</p>
     </div>
-    <p class="shortcut-info margin-negative" style="margin-top: -10px;">Tip: Use <kbd><span id="shortcut-key"></span></kbd> to quickly toggle the New Tab Override.</p>
   </div>
   <script src="options.js"></script>
 </body>

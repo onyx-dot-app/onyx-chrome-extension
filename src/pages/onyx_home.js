@@ -29,16 +29,12 @@ import {
     iframeLoadTimeout = setTimeout(() => {
       if (!iframeLoaded) {
         try {
-          // Check if the iframe URL is the login page
           if (iframe.contentWindow.location.pathname.includes("/auth/login")) {
-            console.log("Redirected to login page, showing in iframe");
             showLoginPage();
           } else {
             showErrorModal(iframe.src);
           }
         } catch (error) {
-          // If we can't access the iframe's location, show the error modal
-          console.error("Error accessing iframe content:", error);
           showErrorModal(iframe.src);
         }
       }
@@ -46,17 +42,10 @@ import {
   }
 
   function showLoginPage() {
-    // Hide the background image
     background.style.opacity = "0";
-
-    // Make sure the iframe is visible
     iframe.style.opacity = "1";
     iframe.style.visibility = "visible";
-
-    // Make the content container visible
     content.style.opacity = "1";
-
-    // Remove any error modals if they exist
     hideErrorModal();
   }
 
@@ -70,25 +59,20 @@ import {
   }
 
   function fadeInContent() {
-    // Add transition properties
     content.style.transition = "opacity 0.5s ease-in";
     iframe.style.transition = "opacity 0.5s ease-in";
-
-    // Set initial state
     content.style.opacity = "0";
     iframe.style.opacity = "0";
     iframe.style.visibility = "visible";
 
-    // Start the transition
     requestAnimationFrame(() => {
       content.style.opacity = "1";
       iframe.style.opacity = "1";
 
-      // Wait for content to fully fade in before fading out background
       setTimeout(() => {
         background.style.transition = "opacity 0.3s ease-out";
         background.style.opacity = "0";
-      }, 500); // Match this to the transition duration
+      }, 500);
     });
   }
 
@@ -119,46 +103,34 @@ import {
     );
   }
 
-  chrome.storage.local.get(
-    ["onyxTheme", "onyxBackgroundImage", "darkBgUrl", "lightBgUrl"],
-    function (result) {
-      console.log(result);
-      const theme = result.onyxTheme || "light";
-      const customBackgroundImage = result.onyxBackgroundImage;
-      const darkBgUrl = result.darkBgUrl;
-      const lightBgUrl = result.lightBgUrl;
+  function loadThemeAndBackground() {
+    chrome.storage.local.get(
+      ["onyxTheme", "onyxBackgroundImage", "darkBgUrl", "lightBgUrl"],
+      function (result) {
+        const theme = result.onyxTheme || "light";
+        const customBackgroundImage = result.onyxBackgroundImage;
+        const darkBgUrl = result.darkBgUrl;
+        const lightBgUrl = result.lightBgUrl;
 
-      // Determine which background image to use
-      let backgroundImage;
-      if (customBackgroundImage) {
-        backgroundImage = customBackgroundImage;
-      } else if (theme === "dark" && darkBgUrl) {
-        backgroundImage = darkBgUrl;
-      } else if (theme === "light" && lightBgUrl) {
-        backgroundImage = lightBgUrl;
+        let backgroundImage;
+        if (customBackgroundImage) {
+          backgroundImage = customBackgroundImage;
+        } else if (theme === "dark" && darkBgUrl) {
+          backgroundImage = darkBgUrl;
+        } else if (theme === "light" && lightBgUrl) {
+          backgroundImage = lightBgUrl;
+        }
+
+        setTheme(theme, backgroundImage);
+        checkOnyxPreference();
       }
-      console.log(lightBgUrl);
-      console.log(darkBgUrl);
-      console.log("Background image:", backgroundImage);
-      console.log("Theme:", theme);
-
-      // Apply theme and background
-      setTheme(theme, backgroundImage);
-
-      // Check Onyx preference (assuming this is a separate function you have)
-      checkOnyxPreference();
-    }
-  );
+    );
+  }
 
   chrome.storage.onChanged.addListener(function (changes, namespace) {
     if (namespace === "local") {
       if (changes.onyxTheme || changes.onyxBackgroundImage) {
-        chrome.storage.local.get(
-          ["onyxTheme", "onyxBackgroundImage"],
-          function (result) {
-            setTheme(result.onyxTheme || "light", result.onyxBackgroundImage);
-          }
-        );
+        loadThemeAndBackground();
       }
       if (changes.useOnyxAsDefaultNewTab) {
         checkOnyxPreference();
@@ -181,7 +153,6 @@ import {
       iframeLoaded = true;
     } else if (event.data.type === "PREFERENCES_UPDATED") {
       const { theme, backgroundUrl } = event.data.payload;
-      // Write these into chrome.storage.local
       chrome.storage.local.set(
         {
           onyxTheme: theme,
@@ -211,4 +182,6 @@ import {
   iframe.onerror = function (error) {
     showErrorModal(iframe.src);
   };
+
+  loadThemeAndBackground();
 })();
