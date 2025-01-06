@@ -62,7 +62,7 @@ import { getOnyxDomain } from "../utils/storage.js";
           showErrorModal(mainIframe.src);
         }
       }
-    }, 5000);
+    }, 2500);
   }
 
   function showLoginPage() {

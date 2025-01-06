@@ -1,8 +1,11 @@
+import { showErrorModal } from "../utils/error-modal.js";
+
 (function () {
   const iframe = document.getElementById("onyx-panel-iframe");
   const loadingScreen = document.getElementById("loading-screen");
 
   let currentUrl = "";
+  let iframeLoaded = false;
   let iframeLoadTimeout;
 
   function initializePanel() {
@@ -32,10 +35,18 @@
     }
   }
 
+  function startIframeLoadTimeout() {
+    iframeLoadTimeout = setTimeout(() => {
+      if (!iframeLoaded) {
+        showErrorModal(iframe.src);
+      }
+    }, 2500);
+  }
+
   function handleMessage(event) {
     if (event.data.type === "ONYX_APP_LOADED") {
       clearTimeout(iframeLoadTimeout);
-
+      iframeLoaded = true;
       showIframe();
       if (iframe.contentWindow) {
         iframe.contentWindow.postMessage({ type: "PANEL_READY" }, "*");
@@ -79,4 +90,5 @@
   };
 
   initializePanel();
+  startIframeLoadTimeout();
 })();
