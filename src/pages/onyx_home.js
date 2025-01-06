@@ -3,6 +3,7 @@ import {
   hideErrorModal,
   initErrorModal,
 } from "../utils/error-modal.js";
+import { getOnyxDomain } from "../utils/storage.js";
 
 (function () {
   let mainIframe = document.getElementById("onyx-iframe");
@@ -19,9 +20,13 @@ import {
 
   initErrorModal();
 
-  function preloadChatInterface() {
+  async function preloadChatInterface() {
     preloadedIframe = document.createElement("iframe");
-    preloadedIframe.src = "https://test.danswer.dev/chat";
+
+    const domain = await getOnyxDomain();
+    preloadedIframe.src = domain;
+    console.log("setting to", domain);
+
     preloadedIframe.style.opacity = "0";
     preloadedIframe.style.visibility = "hidden";
     preloadedIframe.style.transition = "opacity 0.3s ease-in";
@@ -115,9 +120,7 @@ import {
           return;
         }
 
-        const onyxDomain =
-          items.onyxDomain + "/nrf" || "https://test.danswer.dev/nrf";
-        setIframeSrc(onyxDomain);
+        setIframeSrc(items.onyxDomain + "/nrf");
       }
     );
   }

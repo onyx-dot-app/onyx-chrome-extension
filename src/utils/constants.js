@@ -1,4 +1,4 @@
-export const DEFAULT_ONYX_DOMAIN = "https://test.danswer.dev";
+export const DEFAULT_ONYX_DOMAIN = "http://localhost:3000/chat";
 export const CONTEXT_MENU_ID = "sendToOnyx";
 export const CONTEXT_MENU_TITLE = "Send to Onyx";
 export const STORAGE_KEYS = {

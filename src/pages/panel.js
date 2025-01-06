@@ -1,5 +1,3 @@
-import { showErrorModal, hideErrorModal } from "../utils/error-modal.js";
-
 (function () {
   const iframe = document.getElementById("onyx-panel-iframe");
   const loadingScreen = document.getElementById("loading-screen");
@@ -19,14 +17,6 @@ import { showErrorModal, hideErrorModal } from "../utils/error-modal.js";
       iframe.src = url;
     }
     currentUrl = pageUrl;
-    startIframeLoadTimeout();
-  }
-
-  function startIframeLoadTimeout() {
-    clearTimeout(iframeLoadTimeout);
-    iframeLoadTimeout = setTimeout(() => {
-      showErrorModal(iframe.src);
-    }, 10000);
   }
 
   function sendWebsiteToIframe(pageUrl) {
@@ -45,7 +35,7 @@ import { showErrorModal, hideErrorModal } from "../utils/error-modal.js";
   function handleMessage(event) {
     if (event.data.type === "ONYX_APP_LOADED") {
       clearTimeout(iframeLoadTimeout);
-      hideErrorModal();
+
       showIframe();
       if (iframe.contentWindow) {
         iframe.contentWindow.postMessage({ type: "PANEL_READY" }, "*");
@@ -61,24 +51,17 @@ import { showErrorModal, hideErrorModal } from "../utils/error-modal.js";
     }, 500);
   }
 
-  function loadOnyxDomain() {
-    chrome.runtime.sendMessage(
-      { action: "getCurrentOnyxDomain" },
-      function (response) {
-        if (response && response.onyxDomain) {
-          setIframeSrc(
-            response.onyxDomain + "/chat?defaultSidebarOff=true",
-            ""
-          );
-        } else {
-          console.warn("Onyx domain not found, using default");
-          setIframeSrc(
-            "https://test.danswer.dev/chat?defaultSidebarOff=true",
-            ""
-          );
-        }
-      }
-    );
+  async function loadOnyxDomain() {
+    const response = await chrome.runtime.sendMessage({
+      action: "getCurrentOnyxDomain",
+    });
+    if (response && response.onyxDomain) {
+      setIframeSrc(response.onyxDomain + "?defaultSidebarOff=true", "");
+    } else {
+      console.warn("Onyx domain not found, using default");
+      const domain = await getOnyxDomain();
+      setIframeSrc(domain + "/chat?defaultSidebarOff=true", "");
+    }
   }
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -90,8 +73,6 @@ import { showErrorModal, hideErrorModal } from "../utils/error-modal.js";
   });
 
   window.addEventListener("message", handleMessage);
-
-  iframe.onload = startIframeLoadTimeout;
 
   iframe.onerror = function (error) {
     showErrorModal(iframe.src);
