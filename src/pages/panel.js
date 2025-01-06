@@ -1,4 +1,4 @@
-import { showErrorModal, hideErrorModal } from "../shared/error-modal.js";
+import { showErrorModal, hideErrorModal } from "../utils/error-modal.js";
 
 (function () {
   const iframe = document.getElementById("onyx-panel-iframe");
@@ -72,7 +72,10 @@ import { showErrorModal, hideErrorModal } from "../shared/error-modal.js";
           );
         } else {
           console.warn("Onyx domain not found, using default");
-          setIframeSrc("http://localhost:3000/chat?defaultSidebarOff=true", "");
+          setIframeSrc(
+            "https://test.danswer.dev/chat?defaultSidebarOff=true",
+            ""
+          );
         }
       }
     );

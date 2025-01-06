@@ -5,44 +5,27 @@ import {
   STORAGE_KEYS,
   COMMANDS,
   ACTIONS,
-} from "./src/shared/constants.js";
-
-const logger = {
-  log: (message, ...args) =>
-    console.log(`[Onyx Extension] ${message}`, ...args),
-  error: (message, ...args) =>
-    console.error(`[Onyx Extension] Error: ${message}`, ...args),
-  warn: (message, ...args) =>
-    console.warn(`[Onyx Extension] Warning: ${message}`, ...args),
-};
-
-logger.log("Service worker loaded");
+} from "./src/utils/constants.js";
 
 async function setupSidePanel() {
   if (chrome.sidePanel) {
-    logger.log("Side panel API is available");
     try {
       await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
-      logger.log("Side panel behavior set successfully");
     } catch (error) {
-      logger.error("Error setting side panel behavior:", error);
+      console.error("Error setting up side panel:", error);
     }
-  } else {
-    logger.warn("Side panel not supported");
   }
 }
 
 async function openSidePanel(tabId) {
   try {
     await chrome.sidePanel.open({ tabId });
-    logger.log("Side panel opened successfully");
   } catch (error) {
-    logger.error("Error opening side panel:", error);
+    console.error("Error opening side panel:", error);
   }
 }
 
 async function sendToOnyx(info, tab) {
-  logger.log("sendToOnyx function called", { info, tab });
   const selectedText = encodeURIComponent(info.selectionText);
   const currentUrl = encodeURIComponent(tab.url);
 
@@ -53,7 +36,6 @@ async function sendToOnyx(info, tab) {
     const url = `${
       result[STORAGE_KEYS.ONYX_DOMAIN]
     }/chat?input=${selectedText}&url=${currentUrl}`;
-    logger.log("Attempting to open side panel with URL:", url);
 
     await openSidePanel(tab.id);
     chrome.runtime.sendMessage({
@@ -62,7 +44,7 @@ async function sendToOnyx(info, tab) {
       pageUrl: tab.url,
     });
   } catch (error) {
-    logger.error("Error in sendToOnyx:", error);
+    console.error("Error sending to Onyx:", error);
   }
 }
 
@@ -74,12 +56,9 @@ async function setupContextMenu() {
         title: CONTEXT_MENU_TITLE,
         contexts: ["selection"],
       });
-      logger.log("Context menu created successfully");
     } catch (error) {
-      logger.error("Error creating context menu:", error);
+      console.error("Error setting up context menu:", error);
     }
-  } else {
-    logger.warn("Context menus not supported");
   }
 }
 
@@ -92,7 +71,6 @@ async function toggleNewTabOverride() {
     await chrome.storage.local.set({
       [STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]: newValue,
     });
-    logger.log(`Onyx New Tab Override ${newValue ? "enabled" : "disabled"}`);
 
     chrome.notifications.create({
       type: "basic",
@@ -100,15 +78,24 @@ async function toggleNewTabOverride() {
       title: "Onyx New Tab",
       message: `New Tab Override ${newValue ? "enabled" : "disabled"}`,
     });
+
+    // Send a message to inform all tabs about the change
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+        chrome.tabs.sendMessage(tab.id, {
+          action: "newTabOverrideToggled",
+          value: newValue,
+        });
+      });
+    });
   } catch (error) {
-    logger.error("Error toggling new tab override:", error);
+    console.error("Error toggling new tab override:", error);
   }
 }
 
 chrome.runtime.onInstalled.addListener(setupContextMenu);
 
 chrome.action.onClicked.addListener((tab) => {
-  logger.log("Extension icon clicked, attempting to open side panel");
   openSidePanel(tab.id);
 });
 
@@ -135,7 +122,7 @@ chrome.commands.onCommand.addListener(async (command) => {
         sendToOnyx({ selectionText: selectedText }, tab);
       }
     } catch (error) {
-      logger.error("Error handling send-to-onyx command:", error);
+      console.error("Error sending to Onyx:", error);
     }
   } else if (command === COMMANDS.TOGGLE_NEW_TAB_OVERRIDE) {
     toggleNewTabOverride();
@@ -155,21 +142,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  logger.log("Storage changed:", changes, "in namespace:", namespace);
   if (
     namespace === "local" &&
     changes[STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]
   ) {
     const newValue = changes[STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB].newValue;
-    logger.log(
-      `${STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB} changed:`,
-      newValue
-    );
 
     if (newValue === false) {
-      chrome.runtime.openOptionsPage(() => {
-        logger.log("Attempted to reopen options page");
-      });
+      chrome.runtime.openOptionsPage();
     }
   }
 });

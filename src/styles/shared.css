@@ -69,7 +69,6 @@ input[type="text"] {
   font-size: 16px;
   font-weight: 500;
   transition: background-color 0.3s;
-  margin-bottom: 15px;
 }
 
 .button.primary {
@@ -105,7 +104,7 @@ input[type="text"] {
 }
 
 .shortcut-info {
-  margin-top: 5px;
+  margin-top: 15px;
   font-size: 14px;
   color: var(--text-light-color);
   text-align: center;

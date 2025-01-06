@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadStoredValues() {
     chrome.storage.local.get(
       {
-        onyxDomain: "http://localhost:3000/nrf",
+        onyxDomain: "https://test.danswer.dev/nrf",
         useOnyxAsDefaultNewTab: false,
       },
       (result) => {
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
       : false;
     chrome.storage.local.set(
       {
-        onyxDomain: domain || "http://localhost:3000/nrf",
+        onyxDomain: domain || "https://test.danswer.dev/nrf",
         useOnyxAsDefaultNewTab: useOnyxAsDefault,
       },
       showStatusMessage

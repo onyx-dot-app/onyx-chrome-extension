@@ -2,10 +2,11 @@ import {
   showErrorModal,
   hideErrorModal,
   initErrorModal,
-} from "../shared/error-modal.js";
+} from "../utils/error-modal.js";
 
 (function () {
-  const iframe = document.getElementById("onyx-iframe");
+  let mainIframe = document.getElementById("onyx-iframe");
+  let preloadedIframe = null;
   const background = document.getElementById("background");
   const content = document.getElementById("content");
   const DEFAULT_LIGHT_BACKGROUND_IMAGE =
@@ -18,8 +19,24 @@ import {
 
   initErrorModal();
 
+  function preloadChatInterface() {
+    preloadedIframe = document.createElement("iframe");
+    preloadedIframe.src = "https://test.danswer.dev/chat";
+    preloadedIframe.style.opacity = "0";
+    preloadedIframe.style.visibility = "hidden";
+    preloadedIframe.style.transition = "opacity 0.3s ease-in";
+    preloadedIframe.style.border = "none";
+    preloadedIframe.style.width = "100%";
+    preloadedIframe.style.height = "100%";
+    preloadedIframe.style.position = "absolute";
+    preloadedIframe.style.top = "0";
+    preloadedIframe.style.left = "0";
+    preloadedIframe.style.zIndex = "1";
+    content.appendChild(preloadedIframe);
+  }
+
   function setIframeSrc(url) {
-    iframe.src = url;
+    mainIframe.src = url;
     startIframeLoadTimeout();
     iframeLoaded = false;
   }
@@ -29,13 +46,15 @@ import {
     iframeLoadTimeout = setTimeout(() => {
       if (!iframeLoaded) {
         try {
-          if (iframe.contentWindow.location.pathname.includes("/auth/login")) {
+          if (
+            mainIframe.contentWindow.location.pathname.includes("/auth/login")
+          ) {
             showLoginPage();
           } else {
-            showErrorModal(iframe.src);
+            showErrorModal(mainIframe.src);
           }
         } catch (error) {
-          showErrorModal(iframe.src);
+          showErrorModal(mainIframe.src);
         }
       }
     }, 5000);
@@ -43,8 +62,8 @@ import {
 
   function showLoginPage() {
     background.style.opacity = "0";
-    iframe.style.opacity = "1";
-    iframe.style.visibility = "visible";
+    mainIframe.style.opacity = "1";
+    mainIframe.style.visibility = "visible";
     content.style.opacity = "1";
     hideErrorModal();
   }
@@ -60,14 +79,14 @@ import {
 
   function fadeInContent() {
     content.style.transition = "opacity 0.5s ease-in";
-    iframe.style.transition = "opacity 0.5s ease-in";
+    mainIframe.style.transition = "opacity 0.5s ease-in";
     content.style.opacity = "0";
-    iframe.style.opacity = "0";
-    iframe.style.visibility = "visible";
+    mainIframe.style.opacity = "0";
+    mainIframe.style.visibility = "visible";
 
     requestAnimationFrame(() => {
       content.style.opacity = "1";
-      iframe.style.opacity = "1";
+      mainIframe.style.opacity = "1";
 
       setTimeout(() => {
         background.style.transition = "opacity 0.3s ease-out";
@@ -97,7 +116,7 @@ import {
         }
 
         const onyxDomain =
-          items.onyxDomain + "/nrf" || "http://localhost:3000/nrf";
+          items.onyxDomain + "/nrf" || "https://test.danswer.dev/nrf";
         setIframeSrc(onyxDomain);
       }
     );
@@ -127,25 +146,50 @@ import {
     );
   }
 
+  function loadNewPage(newSrc) {
+    if (preloadedIframe && preloadedIframe.contentWindow) {
+      preloadedIframe.contentWindow.postMessage(
+        { type: "LOAD_NEW_PAGE", href: newSrc },
+        "*"
+      );
+    } else {
+      console.error("Preloaded iframe not available");
+    }
+  }
+
+  function completePendingPageLoad() {
+    if (preloadedIframe) {
+      preloadedIframe.style.visibility = "visible";
+      preloadedIframe.style.opacity = "1";
+      preloadedIframe.style.zIndex = "1";
+      mainIframe.style.zIndex = "2";
+      mainIframe.style.opacity = "0";
+
+      setTimeout(() => {
+        if (content.contains(mainIframe)) {
+          content.removeChild(mainIframe);
+        }
+
+        mainIframe = preloadedIframe;
+        mainIframe.id = "onyx-iframe";
+        mainIframe.style.zIndex = "";
+        iframeLoaded = true;
+        clearTimeout(iframeLoadTimeout);
+      }, 200);
+    } else {
+      console.warn("No preloaded iframe available");
+    }
+  }
+
   chrome.storage.onChanged.addListener(function (changes, namespace) {
-    if (namespace === "local") {
-      if (changes.onyxTheme || changes.onyxBackgroundImage) {
-        loadThemeAndBackground();
-      }
-      if (changes.useOnyxAsDefaultNewTab) {
-        checkOnyxPreference();
-      }
+    if (namespace === "local" && changes.useOnyxAsDefaultNewTab) {
+      checkOnyxPreference();
     }
   });
 
   window.addEventListener("message", function (event) {
     if (event.data.type === "SET_DEFAULT_NEW_TAB") {
-      chrome.storage.local.set(
-        { useOnyxAsDefaultNewTab: event.data.value },
-        function () {
-          checkOnyxPreference();
-        }
-      );
+      chrome.storage.local.set({ useOnyxAsDefaultNewTab: event.data.value });
     } else if (event.data.type === "ONYX_APP_LOADED") {
       clearTimeout(iframeLoadTimeout);
       hideErrorModal();
@@ -158,13 +202,12 @@ import {
           onyxTheme: theme,
           onyxBackgroundImage: backgroundUrl,
         },
-        () => {
-          console.log("Updated preferences in chrome.storage:", {
-            theme,
-            backgroundUrl,
-          });
-        }
+        () => {}
       );
+    } else if (event.data.type === "LOAD_NEW_PAGE") {
+      loadNewPage(event.data.href);
+    } else if (event.data.type === "LOAD_NEW_CHAT_PAGE") {
+      completePendingPageLoad();
     }
   });
 
@@ -174,14 +217,15 @@ import {
     }
   });
 
-  iframe.onload = function () {
+  mainIframe.onload = function () {
     clearTimeout(iframeLoadTimeout);
     startIframeLoadTimeout();
   };
 
-  iframe.onerror = function (error) {
-    showErrorModal(iframe.src);
+  mainIframe.onerror = function (error) {
+    showErrorModal(mainIframe.src);
   };
 
   loadThemeAndBackground();
+  preloadChatInterface();
 })();

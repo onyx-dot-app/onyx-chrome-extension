@@ -43,6 +43,6 @@
     }
   },
   "side_panel": {
-    "default_path": "src/panel/panel.html"
+    "default_path": "src/pages/panel.html"
   }
 }
