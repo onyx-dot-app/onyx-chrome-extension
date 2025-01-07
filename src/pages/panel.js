@@ -1,5 +1,5 @@
 import { showErrorModal } from "../utils/error-modal.js";
-
+import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
 (function () {
   const iframe = document.getElementById("onyx-panel-iframe");
   const loadingScreen = document.getElementById("loading-screen");
@@ -26,7 +26,7 @@ import { showErrorModal } from "../utils/error-modal.js";
     if (iframe.contentWindow && pageUrl !== currentUrl) {
       iframe.contentWindow.postMessage(
         {
-          type: "PAGE_URL",
+          type: WEB_MESSAGE.PAGE_CHANGE,
           url: pageUrl,
         },
         "*"
@@ -44,7 +44,7 @@ import { showErrorModal } from "../utils/error-modal.js";
   }
 
   function handleMessage(event) {
-    if (event.data.type === "ONYX_APP_LOADED") {
+    if (event.data.type === CHROME_MESSAGE.ONYX_APP_LOADED) {
       clearTimeout(iframeLoadTimeout);
       iframeLoaded = true;
       showIframe();
@@ -64,7 +64,7 @@ import { showErrorModal } from "../utils/error-modal.js";
 
   async function loadOnyxDomain() {
     const response = await chrome.runtime.sendMessage({
-      action: "getCurrentOnyxDomain",
+      action: ACTIONS.GET_CURRENT_ONYX_DOMAIN,
     });
     if (response && response.onyxDomain) {
       setIframeSrc(response.onyxDomain + "?defaultSidebarOff=true", "");
@@ -76,9 +76,7 @@ import { showErrorModal } from "../utils/error-modal.js";
   }
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "openOnyxWithInput") {
-      setIframeSrc(request.url, request.pageUrl);
-    } else if (request.action === "updatePageUrl") {
+    if (request.action === ACTIONS.UPDATE_PAGE_URL) {
       sendWebsiteToIframe(request.pageUrl);
     }
   });

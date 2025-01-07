@@ -1,9 +1,6 @@
 import {
   DEFAULT_ONYX_DOMAIN,
-  CONTEXT_MENU_ID,
-  CONTEXT_MENU_TITLE,
-  STORAGE_KEYS,
-  COMMANDS,
+  CHROME_SPECIFIC_STORAGE_KEYS,
   ACTIONS,
 } from "./src/utils/constants.js";
 
@@ -31,10 +28,10 @@ async function sendToOnyx(info, tab) {
 
   try {
     const result = await chrome.storage.local.get({
-      [STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
+      [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
     });
     const url = `${
-      result[STORAGE_KEYS.ONYX_DOMAIN]
+      result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]
     }/chat?input=${selectedText}&url=${currentUrl}`;
 
     await openSidePanel(tab.id);
@@ -48,28 +45,15 @@ async function sendToOnyx(info, tab) {
   }
 }
 
-async function setupContextMenu() {
-  if (chrome.contextMenus) {
-    try {
-      await chrome.contextMenus.create({
-        id: CONTEXT_MENU_ID,
-        title: CONTEXT_MENU_TITLE,
-        contexts: ["selection"],
-      });
-    } catch (error) {
-      console.error("Error setting up context menu:", error);
-    }
-  }
-}
-
 async function toggleNewTabOverride() {
   try {
     const result = await chrome.storage.local.get(
-      STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB
+      CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB
     );
-    const newValue = !result[STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];
+    const newValue =
+      !result[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];
     await chrome.storage.local.set({
-      [STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]: newValue,
+      [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]: newValue,
     });
 
     chrome.notifications.create({
@@ -93,22 +77,12 @@ async function toggleNewTabOverride() {
   }
 }
 
-chrome.runtime.onInstalled.addListener(setupContextMenu);
-
 chrome.action.onClicked.addListener((tab) => {
   openSidePanel(tab.id);
 });
 
-if (chrome.contextMenus) {
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === CONTEXT_MENU_ID) {
-      sendToOnyx(info, tab);
-    }
-  });
-}
-
 chrome.commands.onCommand.addListener(async (command) => {
-  if (command === COMMANDS.SEND_TO_ONYX) {
+  if (command === ACTIONS.SEND_TO_ONYX) {
     try {
       const [tab] = await chrome.tabs.query({
         active: true,
@@ -124,7 +98,7 @@ chrome.commands.onCommand.addListener(async (command) => {
     } catch (error) {
       console.error("Error sending to Onyx:", error);
     }
-  } else if (command === COMMANDS.TOGGLE_NEW_TAB_OVERRIDE) {
+  } else if (command === ACTIONS.TOGGLE_NEW_TAB_OVERRIDE) {
     toggleNewTabOverride();
   }
 });
@@ -132,9 +106,11 @@ chrome.commands.onCommand.addListener(async (command) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === ACTIONS.GET_CURRENT_ONYX_DOMAIN) {
     chrome.storage.local.get(
-      { [STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
+      { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
       (result) => {
-        sendResponse({ onyxDomain: result[STORAGE_KEYS.ONYX_DOMAIN] });
+        sendResponse({
+          onyxDomain: result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN],
+        });
       }
     );
     return true;
@@ -144,9 +120,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (
     namespace === "local" &&
-    changes[STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]
+    changes[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]
   ) {
-    const newValue = changes[STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB].newValue;
+    const newValue =
+      changes[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]
+        .newValue;
 
     if (newValue === false) {
       chrome.runtime.openOptionsPage();

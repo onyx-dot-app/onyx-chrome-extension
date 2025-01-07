@@ -1,6 +1,8 @@
+import { DEFAULT_ONYX_DOMAIN } from "./constants.js";
+
 export async function getOnyxDomain() {
   const result = await chrome.storage.local.get({
-    onyxDomain: "http://localhost:3000/chat",
+    onyxDomain: DEFAULT_ONYX_DOMAIN,
   });
   return result.onyxDomain;
 }

@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadStoredValues() {
     chrome.storage.local.get(
       {
-        onyxDomain: "http://localhost:3000/chat",
+        onyxDomain: DEFAULT_ONYX_DOMAIN,
         useOnyxAsDefaultNewTab: false,
       },
       (result) => {
@@ -29,13 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function saveSettings() {
-    const domain = domainInput ? domainInput.value.trim() : "";
+    const domain = domainInput ? domainInput.value.trim() : DEFAULT_ONYX_DOMAIN;
     const useOnyxAsDefault = useOnyxAsDefaultToggle
       ? useOnyxAsDefaultToggle.checked
       : false;
     chrome.storage.local.set(
       {
-        onyxDomain: domain || "http://localhost:3000/chat/nrf",
+        onyxDomain: domain,
         useOnyxAsDefaultNewTab: useOnyxAsDefault,
       },
       showStatusMessage

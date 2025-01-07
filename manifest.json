@@ -2,15 +2,13 @@
   "manifest_version": 3,
   "name": "Onyx Extension",
   "version": "1.0",
-  "description": "Onyx Chrome Extension",
-  "permissions": ["sidePanel", "storage", "activeTab", "scripting", "tabs"],
-  "host_permissions": ["<all_urls>"],
+  "description": "Onyx integration for Chrome",
+  "permissions": ["storage", "tabs", "contextMenus", "activeTab"],
   "background": {
     "service_worker": "service_worker.js",
     "type": "module"
   },
   "action": {
-    "default_popup": "src/pages/onyx_home.html",
     "default_icon": {
       "16": "public/icon16.png",
       "48": "public/icon48.png",
@@ -26,14 +24,13 @@
   "chrome_url_overrides": {
     "newtab": "src/pages/onyx_home.html"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["src/pages/panel.html"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "commands": {
-    "send-to-onyx": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+P",
-        "mac": "Command+Shift+P"
-      },
-      "description": "Send selected text to Onyx"
-    },
     "toggle-new-tab-override": {
       "suggested_key": {
         "default": "Ctrl+Shift+O",
@@ -41,8 +38,5 @@
       },
       "description": "Toggle Onyx New Tab Override"
     }
-  },
-  "side_panel": {
-    "default_path": "src/pages/panel.html"
   }
 }
