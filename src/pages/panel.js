@@ -76,8 +76,6 @@ import {
     const response = await chrome.runtime.sendMessage({
       action: ACTIONS.GET_CURRENT_ONYX_DOMAIN,
     });
-    console.log("CURRENT DOMAIn");
-    console.log(response);
     if (response && response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]) {
       setIframeSrc(
         response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] +
