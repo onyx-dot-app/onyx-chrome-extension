@@ -1,6 +1,7 @@
 import {
   CHROME_MESSAGE,
   CHROME_SPECIFIC_STORAGE_KEYS,
+  WEB_MESSAGE,
 } from "../utils/constants.js";
 import {
   showErrorModal,
@@ -126,12 +127,12 @@ import { getOnyxDomain } from "../utils/storage.js";
 
         if (!useOnyxAsDefaultNewTab) {
           chrome.tabs.update({
-            url: items.defaultNtpUrl || "chrome://new-tab-page",
+            url: "chrome://new-tab-page",
           });
           return;
         }
 
-        setIframeSrc(items.onyxDomain + "/nrf");
+        setIframeSrc(items[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] + "/nrf");
       }
     );
   }
@@ -145,10 +146,11 @@ import { getOnyxDomain } from "../utils/storage.js";
         CHROME_SPECIFIC_STORAGE_KEYS.LIGHT_BG_URL,
       ],
       function (result) {
-        const theme = result.onyxTheme || "light";
-        const customBackgroundImage = result.onyxBackgroundImage;
-        const darkBgUrl = result.darkBgUrl;
-        const lightBgUrl = result.lightBgUrl;
+        const theme = result[CHROME_SPECIFIC_STORAGE_KEYS.THEME] || "light";
+        const customBackgroundImage =
+          result[CHROME_SPECIFIC_STORAGE_KEYS.BACKGROUND_IMAGE];
+        const darkBgUrl = result[CHROME_SPECIFIC_STORAGE_KEYS.DARK_BG_URL];
+        const lightBgUrl = result[CHROME_SPECIFIC_STORAGE_KEYS.LIGHT_BG_URL];
 
         let backgroundImage;
         if (customBackgroundImage) {
@@ -168,7 +170,7 @@ import { getOnyxDomain } from "../utils/storage.js";
   function loadNewPage(newSrc) {
     if (preloadedIframe && preloadedIframe.contentWindow) {
       preloadedIframe.contentWindow.postMessage(
-        { type: "LOAD_NEW_PAGE", href: newSrc },
+        { type: WEB_MESSAGE.PAGE_CHANGE, href: newSrc },
         "*"
       );
     } else {
@@ -207,6 +209,7 @@ import { getOnyxDomain } from "../utils/storage.js";
   });
 
   window.addEventListener("message", function (event) {
+    console.log("MESSAGE", event.data);
     if (event.data.type === CHROME_MESSAGE.SET_DEFAULT_NEW_TAB) {
       chrome.storage.local.set({ useOnyxAsDefaultNewTab: event.data.value });
     } else if (event.data.type === CHROME_MESSAGE.ONYX_APP_LOADED) {
@@ -218,8 +221,8 @@ import { getOnyxDomain } from "../utils/storage.js";
       const { theme, backgroundUrl } = event.data.payload;
       chrome.storage.local.set(
         {
-          onyxTheme: theme,
-          onyxBackgroundImage: backgroundUrl,
+          [CHROME_SPECIFIC_STORAGE_KEYS.THEME]: theme,
+          [CHROME_SPECIFIC_STORAGE_KEYS.BACKGROUND_IMAGE]: backgroundUrl,
         },
         () => {}
       );

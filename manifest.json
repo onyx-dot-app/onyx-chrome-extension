@@ -3,7 +3,15 @@
   "name": "Onyx Extension",
   "version": "1.0",
   "description": "Onyx integration for Chrome",
-  "permissions": ["storage", "tabs", "contextMenus", "activeTab"],
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "cookies"
+  ],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "service_worker.js",
     "type": "module"
