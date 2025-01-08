@@ -76,7 +76,9 @@ import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
   }
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === ACTIONS.UPDATE_PAGE_URL) {
+    if (request.action === "openOnyxWithInput") {
+      setIframeSrc(request.url, request.pageUrl);
+    } else if (request.action === ACTIONS.UPDATE_PAGE_URL) {
       sendWebsiteToIframe(request.pageUrl);
     }
   });

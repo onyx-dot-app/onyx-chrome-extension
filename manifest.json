@@ -24,12 +24,6 @@
   "chrome_url_overrides": {
     "newtab": "src/pages/onyx_home.html"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["src/pages/panel.html"],
-      "matches": ["<all_urls>"]
-    }
-  ],
   "commands": {
     "toggle-new-tab-override": {
       "suggested_key": {
@@ -38,5 +32,8 @@
       },
       "description": "Toggle Onyx New Tab Override"
     }
+  },
+  "side_panel": {
+    "default_path": "src/pages/panel.html"
   }
 }
