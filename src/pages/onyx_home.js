@@ -29,7 +29,7 @@ import { getOnyxDomain } from "../utils/storage.js";
     preloadedIframe = document.createElement("iframe");
 
     const domain = await getOnyxDomain();
-    preloadedIframe.src = domain;
+    preloadedIframe.src = domain + "/chat";
     preloadedIframe.style.opacity = "0";
     preloadedIframe.style.visibility = "hidden";
     preloadedIframe.style.transition = "opacity 0.3s ease-in";
@@ -132,7 +132,9 @@ import { getOnyxDomain } from "../utils/storage.js";
           return;
         }
 
-        setIframeSrc(items[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] + "/nrf");
+        setIframeSrc(
+          items[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] + "/chat/nrf"
+        );
       }
     );
   }
@@ -209,7 +211,6 @@ import { getOnyxDomain } from "../utils/storage.js";
   });
 
   window.addEventListener("message", function (event) {
-    console.log("MESSAGE", event.data);
     if (event.data.type === CHROME_MESSAGE.SET_DEFAULT_NEW_TAB) {
       chrome.storage.local.set({ useOnyxAsDefaultNewTab: event.data.value });
     } else if (event.data.type === CHROME_MESSAGE.ONYX_APP_LOADED) {

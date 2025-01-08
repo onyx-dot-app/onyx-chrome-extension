@@ -1,5 +1,10 @@
-import { showErrorModal } from "../utils/error-modal.js";
-import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
+import { showErrorModal, showAuthModal } from "../utils/error-modal.js";
+import {
+  ACTIONS,
+  CHROME_MESSAGE,
+  WEB_MESSAGE,
+  CHROME_SPECIFIC_STORAGE_KEYS,
+} from "../utils/constants.js";
 (function () {
   const iframe = document.getElementById("onyx-panel-iframe");
   const loadingScreen = document.getElementById("loading-screen");
@@ -7,6 +12,7 @@ import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
   let currentUrl = "";
   let iframeLoaded = false;
   let iframeLoadTimeout;
+  let authRequired = false;
 
   function initializePanel() {
     loadingScreen.style.display = "flex";
@@ -16,9 +22,7 @@ import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
   }
 
   function setIframeSrc(url, pageUrl) {
-    if (iframe.src !== url) {
-      iframe.src = url;
-    }
+    iframe.src = url;
     currentUrl = pageUrl;
   }
 
@@ -38,7 +42,11 @@ import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
   function startIframeLoadTimeout() {
     iframeLoadTimeout = setTimeout(() => {
       if (!iframeLoaded) {
-        showErrorModal(iframe.src);
+        if (authRequired) {
+          showAuthModal();
+        } else {
+          showErrorModal(iframe.src);
+        }
       }
     }, 2500);
   }
@@ -51,6 +59,8 @@ import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
       if (iframe.contentWindow) {
         iframe.contentWindow.postMessage({ type: "PANEL_READY" }, "*");
       }
+    } else if (event.data.type === CHROME_MESSAGE.AUTH_REQUIRED) {
+      authRequired = true;
     }
   }
 
@@ -66,8 +76,14 @@ import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
     const response = await chrome.runtime.sendMessage({
       action: ACTIONS.GET_CURRENT_ONYX_DOMAIN,
     });
-    if (response && response.onyxDomain) {
-      setIframeSrc(response.onyxDomain + "?defaultSidebarOff=true", "");
+    console.log("CURRENT DOMAIn");
+    console.log(response);
+    if (response && response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]) {
+      setIframeSrc(
+        response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] +
+          "/chat?defaultSidebarOff=true",
+        ""
+      );
     } else {
       console.warn("Onyx domain not found, using default");
       const domain = await getOnyxDomain();
@@ -84,10 +100,6 @@ import { ACTIONS, CHROME_MESSAGE, WEB_MESSAGE } from "../utils/constants.js";
   });
 
   window.addEventListener("message", handleMessage);
-
-  iframe.onerror = function (error) {
-    showErrorModal(iframe.src);
-  };
 
   initializePanel();
   startIframeLoadTimeout();

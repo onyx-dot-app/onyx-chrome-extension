@@ -17,6 +17,7 @@ export const ACTIONS = {
   GET_CURRENT_ONYX_DOMAIN: "getCurrentOnyxDomain",
   UPDATE_PAGE_URL: "updatePageUrl",
   SEND_TO_ONYX: "sendToOnyx",
+  CLOSE_SIDE_PANEL: "closeSidePanel",
 };
 
 // Chrome-extension specific storage keys
@@ -36,6 +37,7 @@ export const CHROME_MESSAGE = {
   SET_DEFAULT_NEW_TAB: "SET_DEFAULT_NEW_TAB",
   LOAD_NEW_CHAT_PAGE: "LOAD_NEW_CHAT_PAGE",
   LOAD_NEW_PAGE: "LOAD_NEW_PAGE",
+  AUTH_REQUIRED: "AUTH_REQUIRED",
 };
 
 // Messages to send to the iframe

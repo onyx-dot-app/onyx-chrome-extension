@@ -21,6 +21,13 @@ async function openSidePanel(tabId) {
     console.error("Error opening side panel:", error);
   }
 }
+async function closeSidePanel() {
+  try {
+    await chrome.sidePanel.setOptions({ enabled: false });
+  } catch (error) {
+    console.error("Error closing side panel:", error);
+  }
+}
 
 async function sendToOnyx(info, tab) {
   const selectedText = encodeURIComponent(info.selectionText);
@@ -82,6 +89,7 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.commands.onCommand.addListener(async (command) => {
+  console.log("command", command);
   if (command === ACTIONS.SEND_TO_ONYX) {
     try {
       const [tab] = await chrome.tabs.query({
@@ -100,6 +108,13 @@ chrome.commands.onCommand.addListener(async (command) => {
     }
   } else if (command === ACTIONS.TOGGLE_NEW_TAB_OVERRIDE) {
     toggleNewTabOverride();
+  } else if (command === ACTIONS.CLOSE_SIDE_PANEL) {
+    try {
+      await chrome.sidePanel.hide();
+      console.log("Side panel closed via command");
+    } catch (error) {
+      console.error("Error closing side panel via command:", error);
+    }
   }
 });
 
@@ -109,7 +124,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
       (result) => {
         sendResponse({
-          onyxDomain: result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN],
+          [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]:
+            result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN],
+        });
+      }
+    );
+    return true;
+  }
+  if (request.action === ACTIONS.CLOSE_SIDE_PANEL) {
+    closeSidePanel();
+    chrome.storage.local.get(
+      { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
+      (result) => {
+        chrome.tabs.create({
+          url: `${result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]}/auth/login`,
+          active: true,
         });
       }
     );
