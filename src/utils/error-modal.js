@@ -196,7 +196,6 @@ export function initAuthModal() {
         { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
         (result) => {
           const onyxDomain = result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
-          console.log("sendinga  message", ACTIONS.CLOSE_SIDE_PANEL);
           chrome.runtime.sendMessage(
             { action: ACTIONS.CLOSE_SIDE_PANEL },
             () => {
@@ -212,16 +211,12 @@ export function initAuthModal() {
                   url: `${onyxDomain}/auth/login`,
                   active: true,
                 },
-                (tab) => {
+                (_) => {
                   if (chrome.runtime.lastError) {
                     console.error(
                       "Error opening auth tab:",
                       chrome.runtime.lastError
                     );
-                  } else {
-                    console.log("Auth tab opened successfully:", tab.id);
-                    // Optionally, you can focus the newly created tab
-                    chrome.tabs.update(tab.id, { active: true });
                   }
                 }
               );

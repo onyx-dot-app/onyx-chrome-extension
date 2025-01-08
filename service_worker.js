@@ -89,7 +89,6 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.commands.onCommand.addListener(async (command) => {
-  console.log("command", command);
   if (command === ACTIONS.SEND_TO_ONYX) {
     try {
       const [tab] = await chrome.tabs.query({
@@ -111,7 +110,6 @@ chrome.commands.onCommand.addListener(async (command) => {
   } else if (command === ACTIONS.CLOSE_SIDE_PANEL) {
     try {
       await chrome.sidePanel.hide();
-      console.log("Side panel closed via command");
     } catch (error) {
       console.error("Error closing side panel via command:", error);
     }

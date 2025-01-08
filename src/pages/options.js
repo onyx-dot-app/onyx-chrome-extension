@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const useOnyxAsDefault = useOnyxAsDefaultToggle
       ? useOnyxAsDefaultToggle.checked
       : false;
-    console.log(domain, useOnyxAsDefault);
     chrome.storage.local.set(
       {
         [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: domain,
