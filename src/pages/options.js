@@ -1,3 +1,8 @@
+import {
+  CHROME_SPECIFIC_STORAGE_KEYS,
+  DEFAULT_ONYX_DOMAIN,
+} from "../utils/constants.js";
+
 document.addEventListener("DOMContentLoaded", function () {
   const domainInput = document.getElementById("onyxDomain");
   const useOnyxAsDefaultToggle = document.getElementById("useOnyxAsDefault");
@@ -17,26 +22,29 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadStoredValues() {
     chrome.storage.local.get(
       {
-        onyxDomain: "http://localhost:3000/chat",
-        useOnyxAsDefaultNewTab: false,
+        [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
+        [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]: false,
       },
       (result) => {
-        if (domainInput) domainInput.value = result.onyxDomain;
+        if (domainInput)
+          domainInput.value = result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
         if (useOnyxAsDefaultToggle)
-          useOnyxAsDefaultToggle.checked = result.useOnyxAsDefaultNewTab;
+          useOnyxAsDefaultToggle.checked =
+            result[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];
       }
     );
   }
 
   function saveSettings() {
-    const domain = domainInput ? domainInput.value.trim() : "";
+    const domain = domainInput.value.trim();
     const useOnyxAsDefault = useOnyxAsDefaultToggle
       ? useOnyxAsDefaultToggle.checked
       : false;
     chrome.storage.local.set(
       {
-        onyxDomain: domain || "http://localhost:3000/chat/nrf",
-        useOnyxAsDefaultNewTab: useOnyxAsDefault,
+        [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: domain,
+        [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]:
+          useOnyxAsDefault,
       },
       showStatusMessage
     );

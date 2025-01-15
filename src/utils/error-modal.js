@@ -1,3 +1,9 @@
+import {
+  CHROME_SPECIFIC_STORAGE_KEYS,
+  DEFAULT_ONYX_DOMAIN,
+  ACTIONS,
+} from "./constants.js";
+
 // Create and append error modal HTML
 const errorModalHTML = `
   <div id="error-modal">
@@ -104,11 +110,25 @@ style.textContent = `
   }
 `;
 
+const authModalHTML = `
+  <div id="error-modal">
+    <div class="modal-content">
+      <h2>Onyx Authentication Required</h2>
+      <p>You need to log in to access Onyx. Click the button below to authenticate.</p>
+      <div class="button-container">
+        <button id="open-auth" class="button primary">Log In to Onyx</button>
+      </div>
+    </div>
+  </div>
+`;
+
 let errorModal,
   attemptedUrlSpan,
   openOptionsButton,
   disableOverrideButton,
   shortcutKeySpan;
+
+let authModal, openAuthButton;
 
 export function initErrorModal() {
   if (!document.getElementById("error-modal")) {
@@ -116,6 +136,7 @@ export function initErrorModal() {
     document.head.appendChild(style);
 
     errorModal = document.getElementById("error-modal");
+    authModal = document.getElementById("error-modal");
     attemptedUrlSpan = document.getElementById("attempted-url");
     openOptionsButton = document.getElementById("open-options");
     disableOverrideButton = document.getElementById("disable-override");
@@ -159,4 +180,76 @@ export function checkModalVisibility() {
   return errorModal
     ? window.getComputedStyle(errorModal).display !== "none"
     : false;
+}
+
+export function initAuthModal() {
+  if (!document.getElementById("error-modal")) {
+    document.body.insertAdjacentHTML("beforeend", authModalHTML);
+    document.head.appendChild(style);
+
+    authModal = document.getElementById("error-modal");
+    openAuthButton = document.getElementById("open-auth");
+
+    openAuthButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      chrome.storage.local.get(
+        { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
+        (result) => {
+          const onyxDomain = result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
+          chrome.runtime.sendMessage(
+            { action: ACTIONS.CLOSE_SIDE_PANEL },
+            () => {
+              if (chrome.runtime.lastError) {
+                console.error(
+                  "Error closing side panel:",
+                  chrome.runtime.lastError
+                );
+              }
+              // Open the auth window after attempting to close the side panel
+              chrome.tabs.create(
+                {
+                  url: `${onyxDomain}/auth/login`,
+                  active: true,
+                },
+                (_) => {
+                  if (chrome.runtime.lastError) {
+                    console.error(
+                      "Error opening auth tab:",
+                      chrome.runtime.lastError
+                    );
+                  }
+                }
+              );
+            }
+          );
+        }
+      );
+    });
+  }
+}
+
+export function showAuthModal() {
+  if (!authModal) {
+    initAuthModal();
+  }
+  if (authModal) {
+    authModal.style.display = "flex";
+    authModal.style.zIndex = "9999";
+    authModal.style.opacity = "1";
+
+    document.body.style.overflow = "hidden";
+    authModal.style.position = "fixed";
+    authModal.style.top = "0";
+    authModal.style.left = "0";
+    authModal.style.width = "100%";
+    authModal.style.height = "100%";
+    authModal.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  }
+}
+
+export function hideAuthModal() {
+  if (authModal) {
+    authModal.style.display = "none";
+    document.body.style.overflow = "auto";
+  }
 }

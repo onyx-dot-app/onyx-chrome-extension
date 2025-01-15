@@ -1,8 +1,8 @@
 let sidePanel = null;
 
 function createSidePanel() {
-  sidePanel = document.createElement('div');
-  sidePanel.id = 'onyx-side-panel';
+  sidePanel = document.createElement("div");
+  sidePanel.id = "onyx-side-panel";
   sidePanel.style.cssText = `
     position: fixed;
     top: 0;
@@ -15,28 +15,31 @@ function createSidePanel() {
     z-index: 9999;
   `;
 
-  const iframe = document.createElement('iframe');
+  const iframe = document.createElement("iframe");
   iframe.style.cssText = `
     width: 100%;
     height: 100%;
     border: none;
   `;
 
-  chrome.runtime.sendMessage({action: "getCurrentOnyxDomain"}, function(response) {
-    iframe.src = response.onyxDomain;
-  });
+  chrome.runtime.sendMessage(
+    { action: ACTIONS.GET_CURRENT_ONYX_DOMAIN },
+    function (response) {
+      iframe.src = response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
+    }
+  );
 
   sidePanel.appendChild(iframe);
   document.body.appendChild(sidePanel);
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('Content script received message:', request);
+  console.log("Content script received message:", request);
   if (request.action === "openOnyxWithInput") {
-    chrome.runtime.sendMessage({action: "openSidePanel", url: request.url});
+    chrome.runtime.sendMessage({ action: "openSidePanel", url: request.url });
   }
   if (request.action === "getSelectedText") {
     const selectedText = window.getSelection().toString();
-    sendResponse({selectedText: selectedText});
+    sendResponse({ selectedText: selectedText });
   }
-}); 
+});

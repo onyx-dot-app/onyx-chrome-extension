@@ -1,4 +1,9 @@
 import {
+  CHROME_MESSAGE,
+  CHROME_SPECIFIC_STORAGE_KEYS,
+  WEB_MESSAGE,
+} from "../utils/constants.js";
+import {
   showErrorModal,
   hideErrorModal,
   initErrorModal,
@@ -24,9 +29,7 @@ import { getOnyxDomain } from "../utils/storage.js";
     preloadedIframe = document.createElement("iframe");
 
     const domain = await getOnyxDomain();
-    preloadedIframe.src = domain;
-    console.log("setting to", domain);
-
+    preloadedIframe.src = domain + "/chat";
     preloadedIframe.style.opacity = "0";
     preloadedIframe.style.visibility = "hidden";
     preloadedIframe.style.transition = "opacity 0.3s ease-in";
@@ -102,37 +105,54 @@ import { getOnyxDomain } from "../utils/storage.js";
 
   function checkOnyxPreference() {
     chrome.storage.local.get(
-      ["useOnyxAsDefaultNewTab", "onyxDomain", "defaultNtpUrl"],
+      [
+        CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB,
+        CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN,
+      ],
       (items) => {
-        let useOnyxAsDefaultNewTab = items.useOnyxAsDefaultNewTab;
+        let useOnyxAsDefaultNewTab =
+          items[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];
 
         if (useOnyxAsDefaultNewTab === undefined) {
           useOnyxAsDefaultNewTab = !!(
-            localStorage.getItem("useOnyxAsDefaultNewTab") === "1"
+            localStorage.getItem(
+              CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB
+            ) === "1"
           );
-          chrome.storage.local.set({ useOnyxAsDefaultNewTab });
+          chrome.storage.local.set({
+            [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]:
+              useOnyxAsDefaultNewTab,
+          });
         }
 
         if (!useOnyxAsDefaultNewTab) {
           chrome.tabs.update({
-            url: items.defaultNtpUrl || "chrome://new-tab-page",
+            url: "chrome://new-tab-page",
           });
           return;
         }
 
-        setIframeSrc(items.onyxDomain + "/nrf");
+        setIframeSrc(
+          items[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] + "/chat/nrf"
+        );
       }
     );
   }
 
   function loadThemeAndBackground() {
     chrome.storage.local.get(
-      ["onyxTheme", "onyxBackgroundImage", "darkBgUrl", "lightBgUrl"],
+      [
+        CHROME_SPECIFIC_STORAGE_KEYS.THEME,
+        CHROME_SPECIFIC_STORAGE_KEYS.BACKGROUND_IMAGE,
+        CHROME_SPECIFIC_STORAGE_KEYS.DARK_BG_URL,
+        CHROME_SPECIFIC_STORAGE_KEYS.LIGHT_BG_URL,
+      ],
       function (result) {
-        const theme = result.onyxTheme || "light";
-        const customBackgroundImage = result.onyxBackgroundImage;
-        const darkBgUrl = result.darkBgUrl;
-        const lightBgUrl = result.lightBgUrl;
+        const theme = result[CHROME_SPECIFIC_STORAGE_KEYS.THEME] || "light";
+        const customBackgroundImage =
+          result[CHROME_SPECIFIC_STORAGE_KEYS.BACKGROUND_IMAGE];
+        const darkBgUrl = result[CHROME_SPECIFIC_STORAGE_KEYS.DARK_BG_URL];
+        const lightBgUrl = result[CHROME_SPECIFIC_STORAGE_KEYS.LIGHT_BG_URL];
 
         let backgroundImage;
         if (customBackgroundImage) {
@@ -152,7 +172,7 @@ import { getOnyxDomain } from "../utils/storage.js";
   function loadNewPage(newSrc) {
     if (preloadedIframe && preloadedIframe.contentWindow) {
       preloadedIframe.contentWindow.postMessage(
-        { type: "LOAD_NEW_PAGE", href: newSrc },
+        { type: WEB_MESSAGE.PAGE_CHANGE, href: newSrc },
         "*"
       );
     } else {
@@ -191,32 +211,26 @@ import { getOnyxDomain } from "../utils/storage.js";
   });
 
   window.addEventListener("message", function (event) {
-    if (event.data.type === "SET_DEFAULT_NEW_TAB") {
+    if (event.data.type === CHROME_MESSAGE.SET_DEFAULT_NEW_TAB) {
       chrome.storage.local.set({ useOnyxAsDefaultNewTab: event.data.value });
-    } else if (event.data.type === "ONYX_APP_LOADED") {
+    } else if (event.data.type === CHROME_MESSAGE.ONYX_APP_LOADED) {
       clearTimeout(iframeLoadTimeout);
       hideErrorModal();
       fadeInContent();
       iframeLoaded = true;
-    } else if (event.data.type === "PREFERENCES_UPDATED") {
+    } else if (event.data.type === CHROME_MESSAGE.PREFERENCES_UPDATED) {
       const { theme, backgroundUrl } = event.data.payload;
       chrome.storage.local.set(
         {
-          onyxTheme: theme,
-          onyxBackgroundImage: backgroundUrl,
+          [CHROME_SPECIFIC_STORAGE_KEYS.THEME]: theme,
+          [CHROME_SPECIFIC_STORAGE_KEYS.BACKGROUND_IMAGE]: backgroundUrl,
         },
         () => {}
       );
-    } else if (event.data.type === "LOAD_NEW_PAGE") {
+    } else if (event.data.type === CHROME_MESSAGE.LOAD_NEW_PAGE) {
       loadNewPage(event.data.href);
-    } else if (event.data.type === "LOAD_NEW_CHAT_PAGE") {
+    } else if (event.data.type === CHROME_MESSAGE.LOAD_NEW_CHAT_PAGE) {
       completePendingPageLoad();
-    }
-  });
-
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "updateIframeSrc") {
-      setIframeSrc(request.url);
     }
   });
 
