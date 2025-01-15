@@ -26,13 +26,6 @@ A minimal Chrome extension for Onyx (formerly Danswer) providing:
 - Modify files in `src` directory
 - Refresh extension in Chrome
 
-## File Structure
-
-- `manifest.json`: Configuration
-- `src/pages/`: Main popup and options
-- `src/panel/`: Side panel UI
-- `src/service_worker.js`: Background script
-
 ## Contributing
 
 Submit issues or pull requests for improvements
