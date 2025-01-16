@@ -10,7 +10,7 @@ Chrome extension for Onyx with the following features:
 ## Installation
 For Onyx Cloud Users, please visit the Chrome Plugin Store (pending approval still)
 
-For self hosted users, please follow the guide at [https://docs.onyx.app/](https://docs.onyx.app/chrome_extension)
+For self hosted users, please follow the guide at [https://docs.onyx.app/chrome_extension](https://docs.onyx.app/chrome_extension)
 
 ## Development
 
