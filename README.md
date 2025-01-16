@@ -1,7 +1,6 @@
 # Onyx Chrome Extension
 
-A minimal Chrome extension for Onyx (formerly Danswer) providing:
-
+Chrome extension for Onyx with the following features:
 - Default home screen
 - Basic interactions with Onyx platform
 - Embedded iframe to Onyx chat
@@ -9,17 +8,9 @@ A minimal Chrome extension for Onyx (formerly Danswer) providing:
 - Hotkey for quick access panel
 
 ## Installation
+For Onyx Cloud Users, please visit the Chrome Plugin Store (pending approval still)
 
-- Clone repo or download source
-- Navigate to `chrome://extensions`
-- Enable "Developer mode"
-- Load unpacked extension
-
-## Usage
-
-- Click extension icon for Onyx home page
-- Use hotkey for Onyx panel
-- Configure domain in options page
+For self hosted users, please follow the guide at [https://docs.onyx.app/](https://docs.onyx.app/chrome_extension)
 
 ## Development
 
@@ -29,7 +20,3 @@ A minimal Chrome extension for Onyx (formerly Danswer) providing:
 ## Contributing
 
 Submit issues or pull requests for improvements
-
-## License
-
-MIT
