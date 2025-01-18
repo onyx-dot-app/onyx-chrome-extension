@@ -36,13 +36,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function saveSettings() {
-    const domain = domainInput.value.trim();
     const useOnyxAsDefault = useOnyxAsDefaultToggle
       ? useOnyxAsDefaultToggle.checked
       : false;
     chrome.storage.local.set(
       {
-        [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: domain,
         [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]:
           useOnyxAsDefault,
       },
