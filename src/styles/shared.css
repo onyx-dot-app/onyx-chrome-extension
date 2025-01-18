@@ -1,3 +1,6 @@
+/* Import Hanken Grotesk font */
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap');
+
 :root {
   --primary-color: #4285f4;
   --primary-hover-color: #3367d6;
@@ -9,10 +12,11 @@
   --card-background-color: #fff;
   --border-color: #ccc;
   --font-family: Arial, sans-serif;
+  --font-hanken-grotesk: 'Hanken Grotesk', sans-serif;
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-hanken-grotesk);
   margin: 0;
   padding: 0;
 }

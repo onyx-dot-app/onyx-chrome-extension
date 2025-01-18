@@ -21,7 +21,7 @@ async function openSidePanel(tabId) {
     console.error("Error opening side panel:", error);
   }
 }
-async function closeSidePanel() {
+async function errorModal() {
   try {
     await chrome.sidePanel.setOptions({ enabled: false });
   } catch (error) {

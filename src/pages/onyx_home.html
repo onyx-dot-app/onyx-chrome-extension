@@ -1,28 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Onyx New Tab</title>
+  <title>Onyx Home</title>
   <link rel="stylesheet" href="../styles/shared.css">
   <style>
-    body, html {
+    body,
+    html {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100vh;
       overflow: hidden;
     }
+
     @media (prefers-color-scheme: dark) {
-      html, body {
+
+      html,
+      body {
         background-color: #000;
       }
     }
+
     @media (prefers-color-scheme: light) {
-      html, body {
+
+      html,
+      body {
         background-color: #f6f6f6;
       }
     }
+
     #background {
       position: fixed;
       top: 0;
@@ -34,6 +43,7 @@
       background-repeat: no-repeat;
       transition: opacity 0.5s ease-in-out;
     }
+
     #content {
       position: relative;
       width: 100%;
@@ -41,6 +51,7 @@
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
     }
+
     iframe {
       border: none;
       width: 100%;
@@ -52,6 +63,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="background"></div>
   <div id="content">
@@ -61,4 +73,5 @@
   <script src="background_loader.js" type="module"></script>
   <script src="onyx_home.js" type="module"></script>
 </body>
+
 </html>

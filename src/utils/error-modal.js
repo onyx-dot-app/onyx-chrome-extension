@@ -34,11 +34,11 @@ style.textContent = `
     align-items: center;
     justify-content: center;
     z-index: 2000;
-    font-family: Arial, sans-serif;
+    font-family: var(--font-hanken-grotesk), sans-serif;
   }
   #error-modal .modal-content {
-    background-color: #fff;
-    padding: 20px;
+    background-color: var(--card-background-color);
+    padding: 25px;
     border-radius: 10px;
     max-width: 95%;
     width: 500px;
@@ -47,12 +47,12 @@ style.textContent = `
   }
   #error-modal h2 {
     margin-top: 0;
-    color: #333;
+    color: var(--text-color);
     font-size: 24px;
     font-weight: 600;
   }
   #error-modal p {
-    color: #666;
+    color: var(--text-light-color);
     margin-bottom: 15px;
     font-weight: 400;
     font-size: 16px;
@@ -75,28 +75,28 @@ style.textContent = `
     transition: background-color 0.3s;
   }
   #error-modal .button.primary {
-    background-color: #4285f4;
+    background-color: var(--primary-color);
     color: #fff;
   }
   #error-modal .button.primary:hover {
-    background-color: #3367d6;
+    background-color: var(--primary-hover-color);
   }
   #error-modal .button.secondary {
-    background-color: #f1f3f4;
-    color: #3c4043;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
   }
   #error-modal .button.secondary:hover {
-    background-color: #e8eaed;
+    background-color: var(--secondary-hover-color);
   }
   #error-modal .shortcut-info {
     margin-top: 15px;
     font-size: 14px;
-    color: #666;
+    color: var(--text-light-color);
     font-weight: 400;
   }
   #error-modal kbd {
-    background-color: #f1f3f4;
-    border: 1px solid #ccc;
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
     border-radius: 3px;
     padding: 2px 5px;
     font-family: monospace;
@@ -132,6 +132,11 @@ let authModal, openAuthButton;
 
 export function initErrorModal() {
   if (!document.getElementById("error-modal")) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "../styles/shared.css";
+    document.head.appendChild(link);
+
     document.body.insertAdjacentHTML("beforeend", errorModalHTML);
     document.head.appendChild(style);
 
@@ -184,6 +189,11 @@ export function checkModalVisibility() {
 
 export function initAuthModal() {
   if (!document.getElementById("error-modal")) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "../styles/shared.css";
+    document.head.appendChild(link);
+
     document.body.insertAdjacentHTML("beforeend", authModalHTML);
     document.head.appendChild(style);
 
