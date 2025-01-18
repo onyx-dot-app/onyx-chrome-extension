@@ -4,6 +4,7 @@ import {
   CHROME_MESSAGE,
   WEB_MESSAGE,
   CHROME_SPECIFIC_STORAGE_KEYS,
+  DEFAULT_ONYX_DOMAIN,
 } from "../utils/constants.js";
 (function () {
   const iframe = document.getElementById("onyx-panel-iframe");
@@ -73,20 +74,7 @@ import {
   }
 
   async function loadOnyxDomain() {
-    const response = await chrome.runtime.sendMessage({
-      action: ACTIONS.GET_CURRENT_ONYX_DOMAIN,
-    });
-    if (response && response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]) {
-      setIframeSrc(
-        response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] +
-          "/chat?defaultSidebarOff=true",
-        ""
-      );
-    } else {
-      console.warn("Onyx domain not found, using default");
-      const domain = await getOnyxDomain();
-      setIframeSrc(domain + "/chat?defaultSidebarOff=true", "");
-    }
+    setIframeSrc(`${DEFAULT_ONYX_DOMAIN}/chat?defaultSidebarOff=true`, "");
   }
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

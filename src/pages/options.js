@@ -1,10 +1,6 @@
-import {
-  CHROME_SPECIFIC_STORAGE_KEYS,
-  DEFAULT_ONYX_DOMAIN,
-} from "../utils/constants.js";
+import { CHROME_SPECIFIC_STORAGE_KEYS } from "../utils/constants.js";
 
 document.addEventListener("DOMContentLoaded", function () {
-  const domainInput = document.getElementById("onyxDomain");
   const useOnyxAsDefaultToggle = document.getElementById("useOnyxAsDefault");
   const saveButton = document.getElementById("save");
   const statusContainer = document.getElementById("statusContainer");
@@ -22,12 +18,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadStoredValues() {
     chrome.storage.local.get(
       {
-        [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
         [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]: false,
       },
       (result) => {
-        if (domainInput)
-          domainInput.value = result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
         if (useOnyxAsDefaultToggle)
           useOnyxAsDefaultToggle.checked =
             result[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];

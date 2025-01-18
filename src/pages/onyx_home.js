@@ -105,10 +105,7 @@ import { getOnyxDomain } from "../utils/storage.js";
 
   function checkOnyxPreference() {
     chrome.storage.local.get(
-      [
-        CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB,
-        CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN,
-      ],
+      [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB],
       (items) => {
         let useOnyxAsDefaultNewTab =
           items[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];
@@ -132,9 +129,7 @@ import { getOnyxDomain } from "../utils/storage.js";
           return;
         }
 
-        setIframeSrc(
-          items[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] + "/chat/nrf"
-        );
+        setIframeSrc("https://cloud.onyx.app/chat/nrf");
       }
     );
   }

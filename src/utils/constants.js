@@ -3,7 +3,7 @@ export const THEMES = {
   DARK: "dark",
 };
 
-export const DEFAULT_ONYX_DOMAIN = "http://localhost:3000";
+export const DEFAULT_ONYX_DOMAIN = "https://cloud.onyx.app";
 
 // Keyboard shortcuts
 export const KEYBOARD_SHORTCUTS = {
@@ -22,7 +22,6 @@ export const ACTIONS = {
 
 // Chrome-extension specific storage keys
 export const CHROME_SPECIFIC_STORAGE_KEYS = {
-  ONYX_DOMAIN: "onyxExtensionDomain",
   USE_ONYX_AS_DEFAULT_NEW_TAB: "onyxExtensionDefaultNewTab",
   THEME: "onyxExtensionTheme",
   BACKGROUND_IMAGE: "onyxExtensionBackgroundImage",

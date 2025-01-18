@@ -34,12 +34,7 @@ async function sendToOnyx(info, tab) {
   const currentUrl = encodeURIComponent(tab.url);
 
   try {
-    const result = await chrome.storage.local.get({
-      [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
-    });
-    const url = `${
-      result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]
-    }/chat?input=${selectedText}&url=${currentUrl}`;
+    const url = `${DEFAULT_ONYX_DOMAIN}/chat?input=${selectedText}&url=${currentUrl}`;
 
     await openSidePanel(tab.id);
     chrome.runtime.sendMessage({
@@ -118,28 +113,17 @@ chrome.commands.onCommand.addListener(async (command) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === ACTIONS.GET_CURRENT_ONYX_DOMAIN) {
-    chrome.storage.local.get(
-      { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
-      (result) => {
-        sendResponse({
-          [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]:
-            result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN],
-        });
-      }
-    );
+    sendResponse({
+      [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
+    });
     return true;
   }
   if (request.action === ACTIONS.CLOSE_SIDE_PANEL) {
     closeSidePanel();
-    chrome.storage.local.get(
-      { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
-      (result) => {
-        chrome.tabs.create({
-          url: `${result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]}/auth/login`,
-          active: true,
-        });
-      }
-    );
+    chrome.tabs.create({
+      url: `${DEFAULT_ONYX_DOMAIN}/auth/login`,
+      active: true,
+    });
     return true;
   }
 });

@@ -132,11 +132,6 @@ let authModal, openAuthButton;
 
 export function initErrorModal() {
   if (!document.getElementById("error-modal")) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "../styles/shared.css";
-    document.head.appendChild(link);
-
     document.body.insertAdjacentHTML("beforeend", errorModalHTML);
     document.head.appendChild(style);
 
@@ -189,11 +184,6 @@ export function checkModalVisibility() {
 
 export function initAuthModal() {
   if (!document.getElementById("error-modal")) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "../styles/shared.css";
-    document.head.appendChild(link);
-
     document.body.insertAdjacentHTML("beforeend", authModalHTML);
     document.head.appendChild(style);
 
@@ -202,38 +192,26 @@ export function initAuthModal() {
 
     openAuthButton.addEventListener("click", (e) => {
       e.preventDefault();
-      chrome.storage.local.get(
-        { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
-        (result) => {
-          const onyxDomain = result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
-          chrome.runtime.sendMessage(
-            { action: ACTIONS.CLOSE_SIDE_PANEL },
-            () => {
-              if (chrome.runtime.lastError) {
-                console.error(
-                  "Error closing side panel:",
-                  chrome.runtime.lastError
-                );
-              }
-              // Open the auth window after attempting to close the side panel
-              chrome.tabs.create(
-                {
-                  url: `${onyxDomain}/auth/login`,
-                  active: true,
-                },
-                (_) => {
-                  if (chrome.runtime.lastError) {
-                    console.error(
-                      "Error opening auth tab:",
-                      chrome.runtime.lastError
-                    );
-                  }
-                }
+      chrome.runtime.sendMessage({ action: ACTIONS.CLOSE_SIDE_PANEL }, () => {
+        if (chrome.runtime.lastError) {
+          console.error("Error closing side panel:", chrome.runtime.lastError);
+        }
+        // Open the auth window after attempting to close the side panel
+        chrome.tabs.create(
+          {
+            url: `${DEFAULT_ONYX_DOMAIN}/auth/login`,
+            active: true,
+          },
+          (_) => {
+            if (chrome.runtime.lastError) {
+              console.error(
+                "Error opening auth tab:",
+                chrome.runtime.lastError
               );
             }
-          );
-        }
-      );
+          }
+        );
+      });
     });
   }
 }
