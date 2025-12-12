@@ -46,6 +46,9 @@
   "side_panel": {
     "default_path": "src/pages/panel.html"
   },
+  "omnibox": {
+    "keyword": "onyx"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

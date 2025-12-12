@@ -28,13 +28,6 @@ async function openSidePanel(tabId) {
     console.error("Error opening side panel:", error);
   }
 }
-async function errorModal() {
-  try {
-    await chrome.sidePanel.setOptions({ enabled: false });
-  } catch (error) {
-    console.error("Error closing side panel:", error);
-  }
-}
 
 async function sendToOnyx(info, tab) {
   const selectedText = encodeURIComponent(info.selectionText);
@@ -234,6 +227,36 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 
 chrome.windows.onRemoved.addListener((windowId) => {
   sidePanelOpenState.delete(windowId);
+});
+
+chrome.omnibox.setDefaultSuggestion({
+  description: 'Search Onyx for "%s"',
+});
+
+chrome.omnibox.onInputEntered.addListener(async (text) => {
+  try {
+    const result = await chrome.storage.local.get({
+      [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
+    });
+
+    const domain = result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
+    const searchUrl = `${domain}/chat?user-prompt=${encodeURIComponent(text)}`;
+
+    chrome.tabs.update({ url: searchUrl });
+  } catch (error) {
+    console.error("Error handling omnibox search:", error);
+  }
+});
+
+chrome.omnibox.onInputChanged.addListener((text, suggest) => {
+  if (text.trim()) {
+    suggest([
+      {
+        content: text,
+        description: `Search Onyx for "<match>${text}</match>"`,
+      },
+    ]);
+  }
 });
 
 setupSidePanel();
