@@ -4,11 +4,16 @@ import {
   ACTIONS,
 } from "./src/utils/constants.js";
 
+// Track side panel state per window
+const sidePanelOpenState = new Map();
+
 async function setupSidePanel() {
   if (chrome.sidePanel) {
     try {
       // Don't auto-open side panel on action click since we have a popup menu
-      await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
+      await chrome.sidePanel.setPanelBehavior({
+        openPanelOnActionClick: false,
+      });
     } catch (error) {
       console.error("Error setting up side panel:", error);
     }
@@ -116,6 +121,31 @@ chrome.commands.onCommand.addListener(async (command) => {
     } catch (error) {
       console.error("Error closing side panel via command:", error);
     }
+  } else if (command === ACTIONS.OPEN_SIDE_PANEL) {
+    // Toggle side panel: open if closed, close if open
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+      if (tabs && tabs.length > 0) {
+        const tab = tabs[0];
+        const windowId = tab.windowId;
+        const isOpen = sidePanelOpenState.get(windowId) || false;
+        
+        if (isOpen) {
+          // Close the side panel
+          chrome.sidePanel.setOptions({ enabled: false }, () => {
+            // Re-enable immediately for future opens
+            chrome.sidePanel.setOptions({ enabled: true });
+            sidePanelOpenState.set(windowId, false);
+          });
+        } else {
+          // Open the side panel
+          chrome.sidePanel.open({ tabId: tab.id });
+          sidePanelOpenState.set(windowId, true);
+        }
+      }
+    });
+    return;
+  } else {
+    console.log("Unhandled command:", command);
   }
 });
 
@@ -160,6 +190,11 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       chrome.runtime.openOptionsPage();
     }
   }
+});
+
+// Clean up side panel state when window is closed
+chrome.windows.onRemoved.addListener((windowId) => {
+  sidePanelOpenState.delete(windowId);
 });
 
 setupSidePanel();

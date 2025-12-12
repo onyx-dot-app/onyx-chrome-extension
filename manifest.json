@@ -41,6 +41,13 @@
         "mac": "Command+Shift+O"
       },
       "description": "Toggle Onyx New Tab Override"
+    },
+    "open-side-panel": {
+      "suggested_key": {
+        "default": "Alt+O",
+        "mac": "Alt+O"
+      },
+      "description": "Open Onyx Side Panel"
     }
   },
   "side_panel": {

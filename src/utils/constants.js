@@ -17,7 +17,8 @@ export const ACTIONS = {
   GET_CURRENT_ONYX_DOMAIN: "getCurrentOnyxDomain",
   UPDATE_PAGE_URL: "updatePageUrl",
   SEND_TO_ONYX: "sendToOnyx",
-  CLOSE_SIDE_PANEL: "closeSidePanel",
+  OPEN_SIDE_PANEL: "open-side-panel",
+  TOGGLE_NEW_TAB_OVERRIDE: "toggle-new-tab-override",
 };
 
 // Chrome-extension specific storage keys
