@@ -21,7 +21,6 @@ import {
       if (result.pendingInput) {
         const { url, pageUrl, timestamp } = result.pendingInput;
         if (Date.now() - timestamp < 5000) {
-          console.log("[Onyx Panel] Found pending input:", url);
           setIframeSrc(url, pageUrl);
           await chrome.storage.session.remove("pendingInput");
           return true;
@@ -115,7 +114,6 @@ import {
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === ACTIONS.OPEN_ONYX_WITH_INPUT) {
-      console.log("[Onyx Panel] Received input:", request.url);
       setIframeSrc(request.url, request.pageUrl);
     } else if (request.action === ACTIONS.UPDATE_PAGE_URL) {
       sendWebsiteToIframe(request.pageUrl);

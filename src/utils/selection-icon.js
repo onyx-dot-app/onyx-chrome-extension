@@ -1,5 +1,4 @@
 (function () {
-  console.log("[Onyx] Selection icon content script loaded");
   const OPEN_SIDE_PANEL_WITH_INPUT = "openSidePanelWithInput";
 
   let selectionIcon = null;
@@ -8,7 +7,6 @@
   function createSelectionIcon() {
     if (selectionIcon) return;
 
-    console.log("[Onyx] Creating selection icon element");
     selectionIcon = document.createElement("div");
     selectionIcon.id = "onyx-selection-icon";
 
@@ -19,7 +17,6 @@
     selectionIcon.appendChild(img);
     document.body.appendChild(selectionIcon);
 
-    // Use mousedown instead of click to capture before selection clears
     selectionIcon.addEventListener("mousedown", handleIconClick);
   }
 
@@ -61,13 +58,6 @@
     selectionIcon.style.left = `${posX}px`;
     selectionIcon.style.top = `${posY}px`;
     selectionIcon.classList.add("visible");
-    console.log(
-      "[Onyx] Icon shown at",
-      posX,
-      posY,
-      "with text:",
-      text.substring(0, 50)
-    );
   }
 
   function hideIcon() {
@@ -82,10 +72,8 @@
     e.stopPropagation();
 
     const textToSend = currentSelectedText;
-    console.log("[Onyx] Icon clicked, text:", textToSend);
 
     if (textToSend) {
-      console.log("[Onyx] Sending message to service worker");
       chrome.runtime.sendMessage(
         {
           action: OPEN_SIDE_PANEL_WITH_INPUT,
@@ -99,7 +87,6 @@
               chrome.runtime.lastError.message
             );
           } else {
-            console.log("[Onyx] Message sent successfully", response);
           }
         }
       );
