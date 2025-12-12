@@ -187,7 +187,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Initialize
   initTheme();
   loadStoredValues();
 });
