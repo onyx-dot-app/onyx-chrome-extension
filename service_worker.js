@@ -53,7 +53,7 @@ async function sendToOnyx(info, tab) {
     });
     const url = `${
       result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]
-    }/chat/nrf/side-panel?input=${selectedText}`;
+    }${SIDE_PANEL_PATH}?user-prompt=${selectedText}`;
 
     await openSidePanel(tab.id);
     chrome.runtime.sendMessage({
@@ -190,7 +190,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         (result) => {
           const encodedText = encodeURIComponent(selectedText);
           const onyxDomain = result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
-          const url = `${onyxDomain}${SIDE_PANEL_PATH}?input=${encodedText}`;
+          const url = `${onyxDomain}${SIDE_PANEL_PATH}?user-prompt=${encodedText}`;
 
           chrome.storage.session.set({
             pendingInput: {
