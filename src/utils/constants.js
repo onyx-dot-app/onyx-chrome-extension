@@ -5,10 +5,12 @@ export const THEMES = {
 
 export const DEFAULT_ONYX_DOMAIN = "http://localhost:3000";
 
+export const SIDE_PANEL_PATH = "/chat/nrf/side-panel";
+
 // Keyboard shortcuts
 export const KEYBOARD_SHORTCUTS = {
   TOGGLE_NEW_TAB_OVERRIDE: "Ctrl+Shift+O",
-  OPEN_SIDE_PANEL: "Ctrl+Shift+P",
+  OPEN_SIDE_PANEL: "Alt+O",
 };
 
 // Actions to send to the service worker
@@ -17,9 +19,9 @@ export const ACTIONS = {
   GET_CURRENT_ONYX_DOMAIN: "getCurrentOnyxDomain",
   UPDATE_PAGE_URL: "updatePageUrl",
   SEND_TO_ONYX: "sendToOnyx",
-  OPEN_SIDE_PANEL: "open-side-panel",
-  TOGGLE_NEW_TAB_OVERRIDE: "toggle-new-tab-override",
-  OPEN_SIDE_PANEL_WITH_TEXT: "open-side-panel-with-text",
+  OPEN_SIDE_PANEL: "openSidePanel",
+  TOGGLE_NEW_TAB_OVERRIDE: "toggleNewTabOverride",
+  OPEN_SIDE_PANEL_WITH_INPUT: "openSidePanelWithInput",
 };
 
 // Chrome-extension specific storage keys

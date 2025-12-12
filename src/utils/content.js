@@ -35,8 +35,8 @@ function createSidePanel() {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("Content script received message:", request);
-  if (request.action === "openOnyxWithInput") {
-    chrome.runtime.sendMessage({ action: "openSidePanel", url: request.url });
+  if (request.action === ACTIONS.OPEN_ONYX_WITH_INPUT) {
+    chrome.runtime.sendMessage({ action: "openSidePanelWithInput", url: request.url });
   }
   if (request.action === "getSelectedText") {
     const selectedText = window.getSelection().toString();

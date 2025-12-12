@@ -2,6 +2,7 @@ import {
   DEFAULT_ONYX_DOMAIN,
   CHROME_SPECIFIC_STORAGE_KEYS,
   ACTIONS,
+  SIDE_PANEL_PATH,
 } from "./src/utils/constants.js";
 
 // Track side panel state per window
@@ -45,11 +46,11 @@ async function sendToOnyx(info, tab) {
     });
     const url = `${
       result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]
-    }/chat?input=${selectedText}&url=${currentUrl}`;
+    }/chat/nrf/side-panel?input=${selectedText}`;
 
     await openSidePanel(tab.id);
     chrome.runtime.sendMessage({
-      action: ACTIONS.OPEN_ONYX_WITH_INPUT,
+      action: ACTIONS.OPEN_SIDE_PANEL_WITH_INPUT,
       url: url,
       pageUrl: tab.url,
     });
@@ -175,9 +176,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     );
     return true;
   }
-  if (
-    request.action === ACTIONS.OPEN_SIDE_PANEL_WITH_TEXT
-  ) {
+  if (request.action === ACTIONS.OPEN_SIDE_PANEL_WITH_INPUT) {
     const { selectedText, pageUrl } = request;
     const tabId = sender.tab?.id;
     const windowId = sender.tab?.windowId;
@@ -190,13 +189,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
             (result) => {
               const encodedText = encodeURIComponent(selectedText);
-              const encodedUrl = encodeURIComponent(pageUrl);
               const onyxDomain =
                 result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
-              const url = `${onyxDomain}/chat/side-panel?input=${encodedText}&url=${encodedUrl}`;
+              const url = `${onyxDomain}${SIDE_PANEL_PATH}?input=${encodedText}`;
 
               chrome.runtime.sendMessage({
-                action: "openOnyxWithInput",
+                action: ACTIONS.OPEN_ONYX_WITH_INPUT,
                 url: url,
                 pageUrl: pageUrl,
               });

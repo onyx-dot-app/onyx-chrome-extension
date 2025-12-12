@@ -35,14 +35,14 @@
     "newtab": "src/pages/onyx_home.html"
   },
   "commands": {
-    "toggle-new-tab-override": {
+    "toggleNewTabOverride": {
       "suggested_key": {
         "default": "Ctrl+Shift+O",
         "mac": "Command+Shift+O"
       },
       "description": "Toggle Onyx New Tab Override"
     },
-    "open-side-panel": {
+    "openSidePanel": {
       "suggested_key": {
         "default": "Alt+O",
         "mac": "Alt+O"

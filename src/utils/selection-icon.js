@@ -1,6 +1,7 @@
 (function () {
   console.log("[Onyx] Selection icon content script loaded");
-  
+  const OPEN_SIDE_PANEL_WITH_INPUT = "openSidePanelWithInput";
+
   let selectionIcon = null;
   let currentSelectedText = "";
 
@@ -53,13 +54,25 @@
     }
 
     // Ensure icon stays within viewport bounds
-    posX = Math.max(offset, Math.min(posX, window.innerWidth - iconSize - offset));
-    posY = Math.max(offset, Math.min(posY, window.innerHeight - iconSize - offset));
+    posX = Math.max(
+      offset,
+      Math.min(posX, window.innerWidth - iconSize - offset)
+    );
+    posY = Math.max(
+      offset,
+      Math.min(posY, window.innerHeight - iconSize - offset)
+    );
 
     selectionIcon.style.left = `${posX}px`;
     selectionIcon.style.top = `${posY}px`;
     selectionIcon.classList.add("visible");
-    console.log("[Onyx] Icon shown at", posX, posY, "with text:", text.substring(0, 50));
+    console.log(
+      "[Onyx] Icon shown at",
+      posX,
+      posY,
+      "with text:",
+      text.substring(0, 50)
+    );
   }
 
   function hideIcon() {
@@ -78,17 +91,23 @@
 
     if (textToSend) {
       console.log("[Onyx] Sending message to service worker");
-      chrome.runtime.sendMessage({
-        action: "open-side-panel-with-text",
-        selectedText: textToSend,
-        pageUrl: window.location.href,
-      }, (response) => {
-        if (chrome.runtime.lastError) {
-          console.error("[Onyx] Error sending message:", chrome.runtime.lastError.message);
-        } else {
-          console.log("[Onyx] Message sent successfully", response);
+      chrome.runtime.sendMessage(
+        {
+          action: OPEN_SIDE_PANEL_WITH_INPUT,
+          selectedText: textToSend,
+          pageUrl: window.location.href,
+        },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.error(
+              "[Onyx] Error sending message:",
+              chrome.runtime.lastError.message
+            );
+          } else {
+            console.log("[Onyx] Message sent successfully", response);
+          }
         }
-      });
+      );
     }
 
     hideIcon();
@@ -97,7 +116,10 @@
   // Handle text selection
   document.addEventListener("mouseup", (e) => {
     // Ignore clicks on the icon itself
-    if (e.target.id === "onyx-selection-icon" || e.target.closest("#onyx-selection-icon")) {
+    if (
+      e.target.id === "onyx-selection-icon" ||
+      e.target.closest("#onyx-selection-icon")
+    ) {
       return;
     }
 
@@ -116,7 +138,10 @@
 
   // Hide icon when clicking elsewhere (not on the icon)
   document.addEventListener("mousedown", (e) => {
-    if (e.target.id !== "onyx-selection-icon" && !e.target.closest("#onyx-selection-icon")) {
+    if (
+      e.target.id !== "onyx-selection-icon" &&
+      !e.target.closest("#onyx-selection-icon")
+    ) {
       // Check if there's still a selection
       const selection = window.getSelection();
       const selectedText = selection.toString().trim();
@@ -127,9 +152,13 @@
   });
 
   // Hide icon on scroll
-  document.addEventListener("scroll", () => {
-    hideIcon();
-  }, true);
+  document.addEventListener(
+    "scroll",
+    () => {
+      hideIcon();
+    },
+    true
+  );
 
   // Hide icon when selection changes to empty
   document.addEventListener("selectionchange", () => {

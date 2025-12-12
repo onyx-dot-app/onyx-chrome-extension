@@ -4,6 +4,7 @@ import {
   CHROME_MESSAGE,
   WEB_MESSAGE,
   CHROME_SPECIFIC_STORAGE_KEYS,
+  SIDE_PANEL_PATH,
 } from "../utils/constants.js";
 (function () {
   const iframe = document.getElementById("onyx-panel-iframe");
@@ -78,19 +79,18 @@ import {
     });
     if (response && response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]) {
       setIframeSrc(
-        response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] +
-          "/chat/side-panel?defaultSidebarOff=true",
+        response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] + SIDE_PANEL_PATH,
         ""
       );
     } else {
       console.warn("Onyx domain not found, using default");
       const domain = await getOnyxDomain();
-      setIframeSrc(domain + "/chat/side-panel?defaultSidebarOff=true", "");
+      setIframeSrc(domain + SIDE_PANEL_PATH, "");
     }
   }
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "openOnyxWithInput") {
+    if (request.action === ACTIONS.OPEN_ONYX_WITH_INPUT) {
       setIframeSrc(request.url, request.pageUrl);
     } else if (request.action === ACTIONS.UPDATE_PAGE_URL) {
       sendWebsiteToIframe(request.pageUrl);
