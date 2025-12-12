@@ -8,7 +8,6 @@ export const DEFAULT_ONYX_DOMAIN = "http://localhost:3000";
 export const SIDE_PANEL_PATH = "/chat/nrf/side-panel";
 
 export const KEYBOARD_SHORTCUTS = {
-  TOGGLE_NEW_TAB_OVERRIDE: "Ctrl+Shift+O",
   OPEN_SIDE_PANEL: "Alt+O",
 };
 

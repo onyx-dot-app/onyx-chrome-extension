@@ -9,19 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const useOnyxAsDefaultToggle = document.getElementById("useOnyxAsDefault");
   const statusContainer = document.getElementById("statusContainer");
   const statusElement = document.getElementById("status");
-  const shortcutKeySpan = document.getElementById("shortcut-key");
   const newTabButton = document.getElementById("newTab");
   const themeToggle = document.getElementById("themeToggle");
   const themeIcon = document.getElementById("themeIcon");
   
   let currentTheme = "dark";
-
-  function setShortcutKey() {
-    if (shortcutKeySpan) {
-      shortcutKeySpan.textContent =
-        navigator.platform.indexOf("Mac") === 0 ? "⌘+Shift+O" : "Ctrl+Shift+O";
-    }
-  }
 
   function updateThemeIcon(theme) {
     if (!themeIcon) return;
@@ -147,6 +139,5 @@ document.addEventListener("DOMContentLoaded", function () {
     newTabButton.addEventListener("click", openNewTab);
   }
 
-  setShortcutKey();
   loadStoredValues();
 });
