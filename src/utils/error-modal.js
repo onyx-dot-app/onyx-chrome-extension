@@ -205,14 +205,6 @@ style.textContent = `
     border-color: var(--white-15);
   }
 
-  #error-modal .shortcut-info {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-light-03);
-    text-align: center;
-    font-weight: 400;
-  }
-
   #error-modal kbd {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--white-10);

@@ -104,14 +104,6 @@ input[type="text"] {
   transition: opacity 0.5s ease-in-out;
 }
 
-.shortcut-info {
-  margin-top: 15px;
-  font-size: 14px;
-  color: var(--text-light-color);
-  text-align: center;
-  font-weight: 400;
-}
-
 kbd {
   background-color: var(--secondary-color);
   border: 1px solid var(--border-color);
