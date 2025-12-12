@@ -79,13 +79,13 @@ import {
     if (response && response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]) {
       setIframeSrc(
         response[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN] +
-          "/chat?defaultSidebarOff=true",
+          "/chat/side-panel?defaultSidebarOff=true",
         ""
       );
     } else {
       console.warn("Onyx domain not found, using default");
       const domain = await getOnyxDomain();
-      setIframeSrc(domain + "/chat?defaultSidebarOff=true", "");
+      setIframeSrc(domain + "/chat/side-panel?defaultSidebarOff=true", "");
     }
   }
 

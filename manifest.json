@@ -9,7 +9,8 @@
     "activeTab",
     "scripting",
     "tabs",
-    "cookies"
+    "cookies",
+    "clipboardWrite"
   ],
   "host_permissions": ["https://cloud.onyx.app/*"],
   "background": {
@@ -21,7 +22,8 @@
       "16": "public/icon16.png",
       "48": "public/icon48.png",
       "128": "public/icon128.png"
-    }
+    },
+    "default_popup": "src/pages/popup.html"
   },
   "icons": {
     "16": "public/icon16.png",

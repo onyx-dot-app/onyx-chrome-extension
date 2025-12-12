@@ -7,7 +7,8 @@ import {
 async function setupSidePanel() {
   if (chrome.sidePanel) {
     try {
-      await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+      // Don't auto-open side panel on action click since we have a popup menu
+      await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
     } catch (error) {
       console.error("Error setting up side panel:", error);
     }
@@ -84,6 +85,8 @@ async function toggleNewTabOverride() {
   }
 }
 
+// Note: This listener won't fire when a popup is defined in manifest.json
+// The popup will show instead. This is kept as a fallback if popup is removed.
 chrome.action.onClicked.addListener((tab) => {
   openSidePanel(tab.id);
 });
