@@ -15,11 +15,35 @@ import {
   let iframeLoadTimeout;
   let authRequired = false;
 
-  function initializePanel() {
+  async function checkPendingInput() {
+    try {
+      const result = await chrome.storage.session.get("pendingInput");
+      if (result.pendingInput) {
+        const { url, pageUrl, timestamp } = result.pendingInput;
+        if (Date.now() - timestamp < 5000) {
+          console.log("[Onyx Panel] Found pending input:", url);
+          setIframeSrc(url, pageUrl);
+          await chrome.storage.session.remove("pendingInput");
+          return true;
+        }
+        await chrome.storage.session.remove("pendingInput");
+      }
+    } catch (error) {
+      console.error("[Onyx Panel] Error checking pending input:", error);
+    }
+    return false;
+  }
+
+  async function initializePanel() {
     loadingScreen.style.display = "flex";
     loadingScreen.style.opacity = "1";
     iframe.style.opacity = "0";
-    loadOnyxDomain();
+
+    // Check for pending input first (from selection icon click)
+    const hasPendingInput = await checkPendingInput();
+    if (!hasPendingInput) {
+      loadOnyxDomain();
+    }
   }
 
   function setIframeSrc(url, pageUrl) {
@@ -91,6 +115,7 @@ import {
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === ACTIONS.OPEN_ONYX_WITH_INPUT) {
+      console.log("[Onyx Panel] Received input:", request.url);
       setIframeSrc(request.url, request.pageUrl);
     } else if (request.action === ACTIONS.UPDATE_PAGE_URL) {
       sendWebsiteToIframe(request.pageUrl);

@@ -123,7 +123,6 @@ chrome.commands.onCommand.addListener(async (command) => {
       console.error("Error closing side panel via command:", error);
     }
   } else if (command === ACTIONS.OPEN_SIDE_PANEL) {
-    // Toggle side panel: open if closed, close if open
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       if (tabs && tabs.length > 0) {
         const tab = tabs[0];
@@ -131,14 +130,11 @@ chrome.commands.onCommand.addListener(async (command) => {
         const isOpen = sidePanelOpenState.get(windowId) || false;
 
         if (isOpen) {
-          // Close the side panel
           chrome.sidePanel.setOptions({ enabled: false }, () => {
-            // Re-enable immediately for future opens
             chrome.sidePanel.setOptions({ enabled: true });
             sidePanelOpenState.set(windowId, false);
           });
         } else {
-          // Open the side panel
           chrome.sidePanel.open({ tabId: tab.id });
           sidePanelOpenState.set(windowId, true);
         }
@@ -182,28 +178,38 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const windowId = sender.tab?.windowId;
 
     if (tabId && windowId) {
-      chrome.sidePanel
-        .open({ windowId })
-        .then(() => {
-          chrome.storage.local.get(
-            { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
-            (result) => {
-              const encodedText = encodeURIComponent(selectedText);
-              const onyxDomain =
-                result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
-              const url = `${onyxDomain}${SIDE_PANEL_PATH}?input=${encodedText}`;
+      chrome.storage.local.get(
+        { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
+        (result) => {
+          const encodedText = encodeURIComponent(selectedText);
+          const onyxDomain = result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
+          const url = `${onyxDomain}${SIDE_PANEL_PATH}?input=${encodedText}`;
 
+          chrome.storage.session.set({
+            pendingInput: {
+              url: url,
+              pageUrl: pageUrl,
+              timestamp: Date.now(),
+            },
+          });
+
+          chrome.sidePanel
+            .open({ windowId })
+            .then(() => {
               chrome.runtime.sendMessage({
                 action: ACTIONS.OPEN_ONYX_WITH_INPUT,
                 url: url,
                 pageUrl: pageUrl,
               });
-            }
-          );
-        })
-        .catch((error) => {
-          console.error("[Onyx SW] Error opening side panel with text:", error);
-        });
+            })
+            .catch((error) => {
+              console.error(
+                "[Onyx SW] Error opening side panel with text:",
+                error
+              );
+            });
+        }
+      );
     } else {
       console.error("[Onyx SW] Missing tabId or windowId");
     }
@@ -226,7 +232,6 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
-// Clean up side panel state when window is closed
 chrome.windows.onRemoved.addListener((windowId) => {
   sidePanelOpenState.delete(windowId);
 });

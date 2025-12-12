@@ -27,13 +27,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!themeIcon) return;
     
     if (theme === "light") {
-      // Sun icon
       themeIcon.innerHTML = `
         <circle cx="12" cy="12" r="4"></circle>
         <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
       `;
     } else {
-      // Moon icon
       themeIcon.innerHTML = `
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
       `;
@@ -58,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
         currentTheme = result[CHROME_SPECIFIC_STORAGE_KEYS.THEME] || "dark";
         updateThemeIcon(currentTheme);
         
-        // Apply theme to page
         document.body.className = currentTheme === "light" ? "light-theme" : "";
       }
     );
@@ -120,10 +117,8 @@ document.addEventListener("DOMContentLoaded", function () {
     currentTheme = currentTheme === "light" ? "dark" : "light";
     updateThemeIcon(currentTheme);
     
-    // Update page theme class
     document.body.className = currentTheme === "light" ? "light-theme" : "";
     
-    // Save theme
     chrome.storage.local.set({
       [CHROME_SPECIFIC_STORAGE_KEYS.THEME]: currentTheme,
     });
@@ -133,7 +128,6 @@ document.addEventListener("DOMContentLoaded", function () {
     chrome.tabs.create({});
   }
 
-  // Auto-save on input change
   if (domainInput) {
     domainInput.addEventListener("input", () => {
       clearTimeout(domainInput.saveTimeout);

@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   const openSidePanelButton = document.getElementById("openSidePanel");
   const openOptionsButton = document.getElementById("openOptions");
 
-  // Load current setting
   async function loadSetting() {
     const result = await chrome.storage.local.get({
       [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]: false,
@@ -18,7 +17,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  // Toggle the setting
   async function toggleSetting() {
     const currentValue = defaultNewTabToggle.checked;
     await chrome.storage.local.set({
@@ -26,7 +24,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  // Open side panel
   async function openSidePanel() {
     try {
       const [tab] = await chrome.tabs.query({
@@ -42,16 +39,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  // Open options page
   function openOptions() {
     chrome.runtime.openOptionsPage();
     window.close();
   }
 
-  // Initialize
   await loadSetting();
 
-  // Event listeners
   if (defaultNewTabToggle) {
     defaultNewTabToggle.addEventListener("change", toggleSetting);
   }

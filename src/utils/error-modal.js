@@ -4,7 +4,6 @@ import {
   ACTIONS,
 } from "./constants.js";
 
-// Create and append error modal HTML
 const errorModalHTML = `
   <div id="error-modal">
     <div class="modal-content">
@@ -20,7 +19,6 @@ const errorModalHTML = `
   </div>
 `;
 
-// Add styles for the error modal
 const style = document.createElement("style");
 style.textContent = `
   #error-modal {
@@ -215,7 +213,6 @@ export function initAuthModal() {
                   chrome.runtime.lastError
                 );
               }
-              // Open the auth window after attempting to close the side panel
               chrome.tabs.create(
                 {
                   url: `${onyxDomain}/auth/login`,

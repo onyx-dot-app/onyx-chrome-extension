@@ -30,7 +30,6 @@
 
     currentSelectedText = text;
 
-    // Get the bounding rectangle of the selection
     const selection = window.getSelection();
     if (!selection.rangeCount) return;
 
@@ -40,20 +39,16 @@
     const iconSize = 32;
     const offset = 4;
 
-    // Position at the bottom-right corner of the selection
     let posX = rect.right + offset;
     let posY = rect.bottom + offset;
 
-    // Adjust if icon would go off-screen to the right
     if (posX + iconSize > window.innerWidth) {
       posX = rect.left - iconSize - offset;
     }
-    // Adjust if icon would go off-screen at the bottom
     if (posY + iconSize > window.innerHeight) {
       posY = rect.top - iconSize - offset;
     }
 
-    // Ensure icon stays within viewport bounds
     posX = Math.max(
       offset,
       Math.min(posX, window.innerWidth - iconSize - offset)
@@ -113,9 +108,7 @@
     hideIcon();
   }
 
-  // Handle text selection
   document.addEventListener("mouseup", (e) => {
-    // Ignore clicks on the icon itself
     if (
       e.target.id === "onyx-selection-icon" ||
       e.target.closest("#onyx-selection-icon")
@@ -123,7 +116,6 @@
       return;
     }
 
-    // Small delay to ensure selection is complete
     setTimeout(() => {
       const selection = window.getSelection();
       const selectedText = selection.toString().trim();
@@ -136,13 +128,11 @@
     }, 10);
   });
 
-  // Hide icon when clicking elsewhere (not on the icon)
   document.addEventListener("mousedown", (e) => {
     if (
       e.target.id !== "onyx-selection-icon" &&
       !e.target.closest("#onyx-selection-icon")
     ) {
-      // Check if there's still a selection
       const selection = window.getSelection();
       const selectedText = selection.toString().trim();
       if (!selectedText) {
@@ -151,7 +141,6 @@
     }
   });
 
-  // Hide icon on scroll
   document.addEventListener(
     "scroll",
     () => {
@@ -160,7 +149,6 @@
     true
   );
 
-  // Hide icon when selection changes to empty
   document.addEventListener("selectionchange", () => {
     const selection = window.getSelection();
     const selectedText = selection.toString().trim();
@@ -169,7 +157,6 @@
     }
   });
 
-  // Create the icon element on load
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", createSelectionIcon);
   } else {
