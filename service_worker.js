@@ -8,6 +8,20 @@ import {
 // Track side panel state per window
 const sidePanelOpenState = new Map();
 
+// Open welcome page on first install
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === "install") {
+    chrome.storage.local.get(
+      { [CHROME_SPECIFIC_STORAGE_KEYS.ONBOARDING_COMPLETE]: false },
+      (result) => {
+        if (!result[CHROME_SPECIFIC_STORAGE_KEYS.ONBOARDING_COMPLETE]) {
+          chrome.tabs.create({ url: "src/pages/welcome.html" });
+        }
+      }
+    );
+  }
+});
+
 async function setupSidePanel() {
   if (chrome.sidePanel) {
     try {

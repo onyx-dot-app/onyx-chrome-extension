@@ -30,6 +30,7 @@ export const CHROME_SPECIFIC_STORAGE_KEYS = {
   BACKGROUND_IMAGE: "onyxExtensionBackgroundImage",
   DARK_BG_URL: "onyxExtensionDarkBgUrl",
   LIGHT_BG_URL: "onyxExtensionLightBgUrl",
+  ONBOARDING_COMPLETE: "onyxExtensionOnboardingComplete",
 };
 
 export const CHROME_MESSAGE = {
