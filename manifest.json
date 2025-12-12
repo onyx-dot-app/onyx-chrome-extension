@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Onyx",
   "version": "1.0",
-  "description": "Onyx integration for Chrome",
+  "description": "Onyx lets you research, create, and automate with LLMs powered by your team's unique knowledge",
   "permissions": [
     "sidePanel",
     "storage",
