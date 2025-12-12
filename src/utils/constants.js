@@ -19,6 +19,7 @@ export const ACTIONS = {
   SEND_TO_ONYX: "sendToOnyx",
   OPEN_SIDE_PANEL: "open-side-panel",
   TOGGLE_NEW_TAB_OVERRIDE: "toggle-new-tab-override",
+  OPEN_SIDE_PANEL_WITH_TEXT: "open-side-panel-with-text",
 };
 
 // Chrome-extension specific storage keys

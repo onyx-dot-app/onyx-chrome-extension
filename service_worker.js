@@ -128,7 +128,7 @@ chrome.commands.onCommand.addListener(async (command) => {
         const tab = tabs[0];
         const windowId = tab.windowId;
         const isOpen = sidePanelOpenState.get(windowId) || false;
-        
+
         if (isOpen) {
           // Close the side panel
           chrome.sidePanel.setOptions({ enabled: false }, () => {
@@ -173,6 +173,42 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
       }
     );
+    return true;
+  }
+  if (
+    request.action === ACTIONS.OPEN_SIDE_PANEL_WITH_TEXT
+  ) {
+    const { selectedText, pageUrl } = request;
+    const tabId = sender.tab?.id;
+    const windowId = sender.tab?.windowId;
+
+    if (tabId && windowId) {
+      chrome.sidePanel
+        .open({ windowId })
+        .then(() => {
+          chrome.storage.local.get(
+            { [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN },
+            (result) => {
+              const encodedText = encodeURIComponent(selectedText);
+              const encodedUrl = encodeURIComponent(pageUrl);
+              const onyxDomain =
+                result[CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN];
+              const url = `${onyxDomain}/chat/side-panel?input=${encodedText}&url=${encodedUrl}`;
+
+              chrome.runtime.sendMessage({
+                action: "openOnyxWithInput",
+                url: url,
+                pageUrl: pageUrl,
+              });
+            }
+          );
+        })
+        .catch((error) => {
+          console.error("[Onyx SW] Error opening side panel with text:", error);
+        });
+    } else {
+      console.error("[Onyx SW] Missing tabId or windowId");
+    }
     return true;
   }
 });

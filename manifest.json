@@ -12,7 +12,7 @@
     "cookies",
     "clipboardWrite"
   ],
-  "host_permissions": ["https://cloud.onyx.app/*"],
+  "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "service_worker.js",
     "type": "module"
@@ -52,5 +52,18 @@
   },
   "side_panel": {
     "default_path": "src/pages/panel.html"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/utils/selection-icon.js"],
+      "css": ["src/styles/selection-icon.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["public/icon32.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
