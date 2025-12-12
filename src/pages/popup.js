@@ -1,6 +1,4 @@
-import {
-  CHROME_SPECIFIC_STORAGE_KEYS,
-} from "../utils/constants.js";
+import { CHROME_SPECIFIC_STORAGE_KEYS } from "../utils/constants.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const defaultNewTabToggle = document.getElementById("defaultNewTabToggle");
@@ -58,4 +56,3 @@ document.addEventListener("DOMContentLoaded", async function () {
     openOptionsButton.addEventListener("click", openOptions);
   }
 });
-

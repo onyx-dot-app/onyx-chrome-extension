@@ -3,7 +3,6 @@ import {
   DEFAULT_ONYX_DOMAIN,
 } from "../utils/constants.js";
 
-
 document.addEventListener("DOMContentLoaded", function () {
   const domainInput = document.getElementById("onyxDomain");
   const useOnyxAsDefaultToggle = document.getElementById("useOnyxAsDefault");
@@ -12,12 +11,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const newTabButton = document.getElementById("newTab");
   const themeToggle = document.getElementById("themeToggle");
   const themeIcon = document.getElementById("themeIcon");
-  
+
   let currentTheme = "dark";
 
   function updateThemeIcon(theme) {
     if (!themeIcon) return;
-    
+
     if (theme === "light") {
       themeIcon.innerHTML = `
         <circle cx="12" cy="12" r="4"></circle>
@@ -29,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
     }
   }
-
 
   function loadStoredValues() {
     chrome.storage.local.get(
@@ -44,10 +42,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (useOnyxAsDefaultToggle)
           useOnyxAsDefaultToggle.checked =
             result[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];
-        
+
         currentTheme = result[CHROME_SPECIFIC_STORAGE_KEYS.THEME] || "dark";
         updateThemeIcon(currentTheme);
-        
+
         document.body.className = currentTheme === "light" ? "light-theme" : "";
       }
     );
@@ -58,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const useOnyxAsDefault = useOnyxAsDefaultToggle
       ? useOnyxAsDefaultToggle.checked
       : false;
-    
+
     chrome.storage.local.set(
       {
         [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: domain,
@@ -81,17 +79,18 @@ document.addEventListener("DOMContentLoaded", function () {
       const useOnyxAsDefault = useOnyxAsDefaultToggle
         ? useOnyxAsDefaultToggle.checked
         : false;
-      
-      statusElement.textContent = message || 
+
+      statusElement.textContent =
+        message ||
         (useOnyxAsDefault
           ? "Settings updated. Open a new tab to test it out. Click on the extension icon to bring up Onyx from any page."
           : "Settings updated.");
-      
+
       if (newTabButton) {
         newTabButton.style.display = useOnyxAsDefault ? "block" : "none";
       }
     }
-    
+
     if (statusContainer) {
       statusContainer.classList.add("show");
     }
@@ -108,9 +107,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function toggleTheme() {
     currentTheme = currentTheme === "light" ? "dark" : "light";
     updateThemeIcon(currentTheme);
-    
+
     document.body.className = currentTheme === "light" ? "light-theme" : "";
-    
+
     chrome.storage.local.set({
       [CHROME_SPECIFIC_STORAGE_KEYS.THEME]: currentTheme,
     });
