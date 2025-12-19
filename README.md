@@ -1,11 +1,11 @@
 # Onyx Browser Extension
 
-The Onyx browser extension lets you research, create, and automate with LLMs powered by your team's unique knowledge. Just hit Ctrl + O to instantly access Onyx in your browser:
+The Onyx browser extension lets you research, create, and automate with LLMs powered by your team's unique knowledge. Just hit Ctrl + O on Mac or Alt + O on Windows to instantly access Onyx in your browser:
 
 💡 Know what your company knows, instantly with the Onyx sidebar
 💬 Chat: Onyx provides a natural language chat interface as the main way of interacting with the features.
 🌎 Internal Search: Ask questions and get answers from all your team's knowledge, powered by Onyx's 50+ connectors to all the tools your team uses
-🚀 With a simple Ctrl + O - instantly summarize information from any work application
+🚀 With a simple Ctrl + O on Mac or Alt + O on Windows - instantly summarize information from any work application
 
 ⚡️ Get quick access to the work resources you need.
 🆕 Onyx new tab page puts all of your company’s knowledge at your fingertips

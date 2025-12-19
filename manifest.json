@@ -44,7 +44,7 @@
     },
     "openSidePanel": {
       "suggested_key": {
-        "default": "Ctrl+O",
+        "default": "Alt+O",
         "mac": "Ctrl+O"
       },
       "description": "Open Onyx Side Panel"
