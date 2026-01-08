@@ -6,16 +6,26 @@ import {
 document.addEventListener("DOMContentLoaded", function () {
   const domainInput = document.getElementById("onyxDomain");
   const useOnyxAsDefaultToggle = document.getElementById("useOnyxAsDefault");
-  const saveButton = document.getElementById("save");
   const statusContainer = document.getElementById("statusContainer");
   const statusElement = document.getElementById("status");
-  const shortcutKeySpan = document.getElementById("shortcut-key");
   const newTabButton = document.getElementById("newTab");
+  const themeToggle = document.getElementById("themeToggle");
+  const themeIcon = document.getElementById("themeIcon");
 
-  function setShortcutKey() {
-    if (shortcutKeySpan) {
-      shortcutKeySpan.textContent =
-        navigator.platform.indexOf("Mac") === 0 ? "⌘+Shift+O" : "Ctrl+Shift+O";
+  let currentTheme = "dark";
+
+  function updateThemeIcon(theme) {
+    if (!themeIcon) return;
+
+    if (theme === "light") {
+      themeIcon.innerHTML = `
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+      `;
+    } else {
+      themeIcon.innerHTML = `
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      `;
     }
   }
 
@@ -24,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
       {
         [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: DEFAULT_ONYX_DOMAIN,
         [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]: false,
+        [CHROME_SPECIFIC_STORAGE_KEYS.THEME]: "dark",
       },
       (result) => {
         if (domainInput)
@@ -31,6 +42,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (useOnyxAsDefaultToggle)
           useOnyxAsDefaultToggle.checked =
             result[CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB];
+
+        currentTheme = result[CHROME_SPECIFIC_STORAGE_KEYS.THEME] || "dark";
+        updateThemeIcon(currentTheme);
+
+        document.body.className = currentTheme === "light" ? "light-theme" : "";
       }
     );
   }
@@ -40,62 +56,87 @@ document.addEventListener("DOMContentLoaded", function () {
     const useOnyxAsDefault = useOnyxAsDefaultToggle
       ? useOnyxAsDefaultToggle.checked
       : false;
+
     chrome.storage.local.set(
       {
         [CHROME_SPECIFIC_STORAGE_KEYS.ONYX_DOMAIN]: domain,
         [CHROME_SPECIFIC_STORAGE_KEYS.USE_ONYX_AS_DEFAULT_NEW_TAB]:
           useOnyxAsDefault,
+        [CHROME_SPECIFIC_STORAGE_KEYS.THEME]: currentTheme,
       },
-      showStatusMessage
+      () => {
+        showStatusMessage(
+          useOnyxAsDefault
+            ? "Settings updated. Open a new tab to test it out. Click on the extension icon to bring up Onyx from any page."
+            : "Settings updated."
+        );
+      }
     );
   }
 
-  function showStatusMessage() {
+  function showStatusMessage(message) {
     if (statusElement) {
       const useOnyxAsDefault = useOnyxAsDefaultToggle
         ? useOnyxAsDefaultToggle.checked
         : false;
-      if (useOnyxAsDefault) {
-        statusElement.textContent =
-          "Settings updated. Open a new tab to test it out. Click on the extension icon to bring up Onyx from any page.";
-        if (newTabButton) newTabButton.style.display = "block";
-      } else {
-        statusElement.textContent = "Settings updated.";
-        if (newTabButton) newTabButton.style.display = "none";
+
+      statusElement.textContent =
+        message ||
+        (useOnyxAsDefault
+          ? "Settings updated. Open a new tab to test it out. Click on the extension icon to bring up Onyx from any page."
+          : "Settings updated.");
+
+      if (newTabButton) {
+        newTabButton.style.display = useOnyxAsDefault ? "block" : "none";
       }
-      statusElement.style.color = "black";
     }
+
     if (statusContainer) {
-      statusContainer.style.display = "block";
-      statusContainer.style.opacity = "1";
+      statusContainer.classList.add("show");
     }
-    if (statusElement) statusElement.style.opacity = "1";
-    if (newTabButton) newTabButton.style.opacity = "1";
 
     setTimeout(hideStatusMessage, 5000);
   }
 
   function hideStatusMessage() {
-    if (statusContainer) statusContainer.style.opacity = "0";
-    if (statusElement) statusElement.style.opacity = "0";
-    if (newTabButton) newTabButton.style.opacity = "0";
-    setTimeout(() => {
-      if (statusContainer) statusContainer.style.display = "none";
-    }, 500);
+    if (statusContainer) {
+      statusContainer.classList.remove("show");
+    }
+  }
+
+  function toggleTheme() {
+    currentTheme = currentTheme === "light" ? "dark" : "light";
+    updateThemeIcon(currentTheme);
+
+    document.body.className = currentTheme === "light" ? "light-theme" : "";
+
+    chrome.storage.local.set({
+      [CHROME_SPECIFIC_STORAGE_KEYS.THEME]: currentTheme,
+    });
   }
 
   function openNewTab() {
     chrome.tabs.create({});
   }
 
-  setShortcutKey();
-  loadStoredValues();
+  if (domainInput) {
+    domainInput.addEventListener("input", () => {
+      clearTimeout(domainInput.saveTimeout);
+      domainInput.saveTimeout = setTimeout(saveSettings, 1000);
+    });
+  }
 
-  if (saveButton) {
-    saveButton.addEventListener("click", saveSettings);
+  if (useOnyxAsDefaultToggle) {
+    useOnyxAsDefaultToggle.addEventListener("change", saveSettings);
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener("click", toggleTheme);
   }
 
   if (newTabButton) {
     newTabButton.addEventListener("click", openNewTab);
   }
+
+  loadStoredValues();
 });
