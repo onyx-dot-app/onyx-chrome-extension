@@ -1,6 +1,6 @@
-# Onyx Browser Extension
+# Onyx Chrome Extension
 
-The Onyx browser extension lets you research, create, and automate with LLMs powered by your team's unique knowledge. Just hit Ctrl + O on Mac or Alt + O on Windows to instantly access Onyx in your browser:
+The Onyx chrome extension lets you research, create, and automate with LLMs powered by your team's unique knowledge. Just hit Ctrl + O on Mac or Alt + O on Windows to instantly access Onyx in your browser:
 
 💡 Know what your company knows, instantly with the Onyx sidebar
 💬 Chat: Onyx provides a natural language chat interface as the main way of interacting with the features.
@@ -18,8 +18,6 @@ Onyx connects with dozens of popular workplace apps like Google Drive, Jira, Con
 ## Installation
 
 For Onyx Cloud Users, please visit the Chrome Plugin Store (pending approval still)
-
-For self hosted users, please follow the guide at [https://docs.onyx.app/chrome_extension](https://docs.onyx.app/chrome_extension)
 
 ## Development
 
