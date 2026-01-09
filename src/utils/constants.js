@@ -7,10 +7,6 @@ export const DEFAULT_ONYX_DOMAIN = "http://localhost:3000";
 
 export const SIDE_PANEL_PATH = "/chat/nrf/side-panel";
 
-export const KEYBOARD_SHORTCUTS = {
-  OPEN_SIDE_PANEL: "Alt+O",
-};
-
 export const ACTIONS = {
   GET_SELECTED_TEXT: "getSelectedText",
   GET_CURRENT_ONYX_DOMAIN: "getCurrentOnyxDomain",
