@@ -7,10 +7,7 @@
     "sidePanel",
     "storage",
     "activeTab",
-    "scripting",
-    "tabs",
-    "cookies",
-    "clipboardWrite"
+    "tabs"
   ],
   "host_permissions": ["<all_urls>"],
   "background": {
